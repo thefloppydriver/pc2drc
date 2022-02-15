@@ -1,0 +1,96 @@
+DRC VNC Client - VNC client for the Wii U Gamepad using libdrc
+
+Pre-requisites
+--------------
+libdrc - kordariffic\input-mods fork, available from
+         https://bitbucket.org/kordariffic/libdrc/branch/input-mods
+libSDL2
+libvncclient (usually distributed with libvncserver)
+
+Building
+--------
+1. libdrc kordariffic\input-mods fork
+
+This requires the kordariffic\input-mods fork of libdrc, available from
+ https://bitbucket.org/kordariffic/libdrc/branch/input-mods
+This fork improves upon libdrc's analog and button code.
+
+Clone it, build it and install it to wherever you install custom stuff
+
+Example (using a custom prefix for libdrc installation)
+
+$ cd /your_working_dir
+$ git clone https://bitbucket.org/kordariffic/libdrc/branch/input-mods
+$ cd input-mods
+
+Then build libdrc as per the instructions at
+http://libdrc.org/docs/installation.html#building-libdrc
+I recommend you use a custom prefix in your configure command
+i.e. --prefix=/home/username/local
+so you don't trash your regular libdrc install and can have multiple 
+libdrc forks available to use.
+Otherwise it'll install to the default prefix, usually /usr/local which 
+does make things easier.
+
+$ PKG_CONFIG_PATH=$PATCHED_X264_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH ./configure --prefix=/customprefix
+$ make
+$ make install
+
+2. drcvncclient
+
+$ cd /your_working_dir
+$ git clone https://github.com/duanemach/drcvncclient.git
+$ cd drcvncclient
+
+If you used a customprefix to install libdrc you need to use the 
+PKG_CONFIG_PATH and LD_LIBRARY_PATH expressions as below
+
+$ ./autogen.sh
+$ PKG_CONFIG_PATH=/customprefix/usr/lib/pkgconfig:$PKG_CONFIG_PATH ./configure
+$ make
+$ LD_LIBRARY_PATH=/customprefix/usr/lib:$LD_LIBRARY_PATH ./src/drcvncclient :1
+
+Or if you installed libdrc to somewhere in your system's existing search paths
+
+$ ./autogen.sh
+$ ./configure
+$ make
+$ ./src/drcvncclient :1
+
+Preparation
+-----------
+1. The vnc server must have dimensions 854x480, otherwise we segfault.
+i.e. start vncserver with the geometry command as below
+
+$ vncserver :1 -geometry 854x480
+
+2. The Wii U Gamepad must be ready for PC control.
+a. It is paired with the hostapd running on your PC, and
+b. It has received an IP address from a DHCP server running on your PC
+If the gamepad can run the libdrc demo programs, it's ready.
+
+Usage
+-----
+drcvncclient [-joystick] [host]:display
+
+Command Line Options:
+
+-joystick
+  Enables the system input feeder, which forwards button & joystick presses
+  to the PC as uinput events. Useful for gaming.
+  With this option, use the gamepad POWER button to toggle between joystick
+  and mouse modes.
+
+Control
+-------
+Without the -joystick command line option the gamepad is locked in mouse mode.
+Touch the screen to move the mouse.
+Left click with ZL or ZR.
+Right click with L or R.
+
+With the -joystick command line option, the gamepad starts in joystick mode.
+The system input feeder sends all button and axis events to the system 
+as a gamepad device, like a regular game controller.
+Press the POWER button briefly to toggle between joystick and mouse mode.
+In mouse mode the system input feeder is still active but feeding
+idle/zero axis and button data to the system.

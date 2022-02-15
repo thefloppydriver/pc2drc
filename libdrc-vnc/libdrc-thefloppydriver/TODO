@@ -1,0 +1,52 @@
+Major priority
+--------------
+
+* Write docs and update README.
+
+* Fix video streaming timing randomly desyncing.
+
+* Fix compatibility with recent DRC fw (video stream never syncing)
+
+* CMD protocol handlers
+
+* H264 decoding support (for DRC camera and DRH video)
+
+* ASTRM/VSTRM receivers (for DRC camera/mic and DRH vid/aud)
+
+* HID sender
+
+Minor priority
+--------------
+
+* Find the macroblock type causing random corruptions on PC->DRC video data.
+
+* Accelerometer/Gyro/Compass data support
+
+* Implement PBO readback (take the code from the current drcstream codebase)
+
+* Use one single thread for the video converter instead of having std::async
+  spawning a new thread every frame.
+
+* Detect the wlan interface used to get the TSF instead of hardcoding it.
+  -- some preliminary (linux-only) support for this in tsf_linux.c
+
+* Think about a startable/stoppable interface to be able to perform
+  init/shutdown of several instances more easily.
+
+* Touchscreen pressure handling (see the TSC2046 datasheet for formulas)
+
+* Use condition variables in the audio streamer instead of continuously polling
+  if we are in underflow condition.
+
+* Integrate drcuinput inside libdrc as some special input receiver/handler
+
+* Document the camera settings from UvcUacCmdPacket.
+
+* Divide by 16 the number of eventfds used by EventMachine by using all bits of
+  the eventfd u64
+
+* Perform audio resampling internally if needed instead of requiring 48KHz s16
+  LE stereo
+
+* Refactor the system input feeder to provide init/stop on the backends and
+  avoid the dirty global variables.

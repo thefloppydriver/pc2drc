@@ -1,0 +1,5 @@
+DRC Hardware
+============
+
+.. toctree::
+    gpio

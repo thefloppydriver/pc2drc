@@ -1,0 +1,10 @@
+<div class="row text-right">
+    {%- if prev %}
+    <a href="{{ prev.link|e }}" class="btn btn-default"
+        title="{{ _('Previous Chapter: ') + prev.title|striptags }}"><i class="fa fa-arrow-left"></i> {{ prev.title|striptags|truncate(length=32, killwords=False) }}</a>
+    {%- endif %}
+    {%- if next %}
+    <a href="{{ next.link|e }}" class="btn btn-default"
+        title="{{ _('Next Chapter: ') + next.title|striptags }}">{{ next.title|striptags|truncate(length=32, killwords=False) }} <i class="fa fa-arrow-right"></i> </a>
+    {%- endif %}
+</div>

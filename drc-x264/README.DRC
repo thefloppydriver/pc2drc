@@ -1,0 +1,13 @@
+x264 DRC patches
+================
+
+**NOTE** Like all our patches to standard software, this code is fragile and
+not ready for production use. Use at your own risk.
+
+* Added a new x264 param: b_drh_mode
+  * Enables DRH style slicing: emit a NAL unit every 6 rows of macroblocks.
+
+* Disables planar prediction (not working on DRC) - should be made runtime
+  configurable at some point
+
+* Force pic_init_qp to 32 and slice_qp_delta to 0.

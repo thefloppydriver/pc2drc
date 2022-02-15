@@ -1,0 +1,33 @@
+  <div id="navbar" class="{{ theme_navbar_class }} navbar-default {% if theme_navbar_fixed_top == 'true' -%} navbar-fixed-top{%- endif -%}">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        {% if show_logo == True %}
+        <a class="navbar-brand" href="{{ pathto('index') }}" title="libdrc home">
+          <img class="logo" src="{{ pathto('_static/logo_pixel.svg', 1) }}" width="110" height="40" alt="libdrc" onerror="this.removeAttribute('onerror'); this.src='{{ pathto('_static/logo_pixel.png', 1) }}'" />
+        </a>
+        {% endif %}
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            <li class="divider-vertical"></li>
+            {% for name, link in theme_navbar_links %}
+            <li {% if pagename.split('/',1)[0] == link.split('/',1)[0] %}class="active"{% endif %}><a href="{{ pathto(link) }}">{{ name }}</a></li>
+            {% endfor %}
+            {% block navbarextra %}{% endblock %}
+          </ul>
+
+          {#
+          {% block navbarsearch %}
+            {% include "navbarsearchbox.html" %}
+          {% endblock %}
+          #}
+        </div>
+    </div>
+  </div>

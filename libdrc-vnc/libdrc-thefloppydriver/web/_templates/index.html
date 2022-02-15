@@ -1,0 +1,108 @@
+{% extends "!layout.html" %}
+
+{% set css_files = css_files + ['_static/landing.css'] %}
+{% set title = _('Home') %}
+
+{% macro svg_with_png(fname, alt, w, h) %}
+<img src="{{ pathto('_static/' + fname + '.svg', 1) }}" width="{{ w }}" height="{{ h }}" alt="{{ alt }}" onerror="this.removeAttribute('onerror'); this.src='{{ pathto('_static/'+fname+'.png', 1) }}'" />
+{% endmacro %}
+
+{% block content %}
+
+{{ navBar() }}
+
+<div id="overall">
+<div id="landing-intro">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 col-md-offset-1 tshadow">
+                <h2>Bring some Wii U in your application!
+                </h2>
+                <h4>GamePad integration made easy.
+                </h4>
+                <p style="margin-top: 2em">
+                    <a href="{{ pathto('download') }}" class="btn btn-dl btn-lg"><i class="fa fa-download"></i> Download</a>
+                    <a href="{{ pathto('examples') }}" class="btn btn-learn btn-lg"><i class="fa fa-code"></i>  Learn</a>
+                </p>
+            </div>
+            <div class="col-xs-12 col-md-6">
+                <div id="landing-code">
+                {% include "index_code_example.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row landing-row">
+        <div class="col-md-9 text-right">
+            <h3>Open source. Community driven.</h3>
+            <p>libdrc is released under the New BSD License and developed by a
+            community of developers and reverse engineers. Whether you are
+            interested in improving performance, feature support or
+            documentation, your contribution is appreciated!
+            <br/>Note: the project is not affiliated with Nintendo<sup>®</sup>
+            and do not claim ownership on any of their trademarks (Wii U, Wii U
+            GamePad).</p>
+        </div>
+        <div class="col-md-2 text-center">
+            {{ svg_with_png('img/landing-opensource', 'Open source', 120, 120) }}
+        </div>
+    </div>
+
+    <div class="row landing-row">
+        <div class="col-md-2 col-md-offset-1 text-center">
+            {{ svg_with_png('img/landing-cpp', 'C++', 120, 120) }}
+        </div>
+        <div class="col-md-8">
+            <h3>Written in C++. Compatible with Linux.</h3>
+            <p>Windows and OS X support planned. Want to use C instead? Not a
+            problem, libdrc exports its main features through a thin C wrapper
+            library.</p>
+        </div>
+    </div>
+
+    <div class="row landing-row">
+        <div class="col-md-9 text-right">
+            <h3>Supports most of the major features.</h3>
+            <p>Stream audio and video to your GamePad. Buttons, sticks and
+            touchscreen work like a charm.  Accelerometer, gyroscope and
+            compass should work soon. Your imagination is the limit!</p>
+        </div>
+        <div class="col-md-2 text-center">
+            {{ svg_with_png('img/landing-buttons', 'Buttons and sticks', 120, 120) }}
+        </div>
+    </div>
+
+    <div class="row landing-row">
+        <div class="col-md-2 col-md-offset-1 text-center">
+            {{ svg_with_png('img/landing-threads', 'Cogs', 120, 120) }}
+        </div>
+        <div class="col-md-8">
+            <h3>Multithreaded.</h3>
+            <p>Performance matters and live video encoding is expensive. libdrc
+            tries to parallelize CPU heavy tasks as much as possible to provide
+            the least overhead for applications.
+            </p>
+        </div>
+    </div>
+
+    <div class="row landing-row">
+        <div class="col-md-9 text-right">
+            <h3>Standalone, easy to integrate.</h3>
+            <p>No dependency on huge frameworks: adding basic libdrc support to
+            your existing application can be done in less than 10 minutes! Give
+            it a try.</p>
+        </div>
+        <div class="col-md-2 text-center">
+            {{ svg_with_png('img/landing-standalone', 'Battery', 120, 120) }}
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}
+

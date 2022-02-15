@@ -1,0 +1,11 @@
+Short Term
+----------
+-target 854x480 vnc geometry to fit gamepad screen & pad last 10 pixels
+-clean up and c++ify program
+-document how to reduce drc-x264 quality to gain FPS on slower PCs
+
+Wishlist
+--------
+-allow vnc to use any resolution screen (scaling)
+-link to libdrc statically instead of dynamically like the demos do, 
+  so we don't need to do the LD_LIBRARY_PATH thing

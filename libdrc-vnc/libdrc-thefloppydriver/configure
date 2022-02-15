@@ -1,0 +1,159 @@
+#! /usr/bin/env bash
+
+TMPDIR=`mktemp -d -t tmpXXXXXXXX`
+trap "rm -rf $TMPDIR" EXIT
+
+usage() {
+    cat >&2 <<EOF
+usage: $0 [flags]
+
+Help Options:
+  -h, --help                Show help options
+
+Build Configuration:
+  --cxx                     C++ compiler that should be used.
+  --prefix                  Installation path of the library.
+  --enable-debug            Build with debug symbols and without optimizations.
+  --disable-debug
+  --enable-demos            Build libdrc demos.
+  --disable-demos
+EOF
+    exit 0
+}
+
+# Options parsing
+# Default values
+CXX=g++
+PREFIX=/usr/local
+DEBUG=n
+DEMOS=y
+for arg; do
+    case $arg in
+        "--cxx="*)
+            CXX=${arg#*=};;
+        "--prefix="*)
+            PREFIX=${arg#*=};;
+        "--enable-debug")
+            DEBUG=y;;
+        "--disable-debug")
+            DEBUG=n;;
+        "--enable-demos")
+            DEMOS=y;;
+        "--disable-demos")
+            DEMOS=n;;
+        "-h"|"--help")
+            usage;;
+        *)
+            echo >&2 "error: unknown option $arg"
+            usage;;
+    esac
+done
+
+CXXFLAGS="-fPIC -I include -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=gnu++11 $CXXFLAGS"
+if [ x"$DEBUG" = x"y" ]; then
+    CXXFLAGS="-g -ggdb3 $CXXFLAGS"
+else
+    CXXFLAGS="-O2 $CXXFLAGS"
+fi
+
+# Libraries detection utils
+export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+lib_present() {
+    pkg-config --exists $@
+}
+lib_cflags() {
+    pkg-config --cflags $@
+}
+lib_ldflags() {
+    pkg-config --libs $@
+}
+
+# Check required dependencies
+DEPS="libswscale x264"
+for DEP in $DEPS
+do
+    if lib_present "$DEP"; then
+        CXXFLAGS+=" $(lib_cflags $DEP)"
+        LDFLAGS+=" $(lib_ldflags $DEP)"
+    else
+        echo 2>&1 "error: missing one of the required dependencies ($DEP)"
+        exit 1
+    fi
+done
+
+LDFLAGS+=' -lpthread'
+
+# Check if the ffmpeg version is recent enough.
+cat >$TMPDIR/test.cpp <<EOF
+#include <libavutil/pixfmt.h>
+
+int main(void) {
+  AVPixelFormat fmt = AV_PIX_FMT_NONE;
+  (void)fmt;
+  return 0;
+}
+EOF
+if ! $CXX $CXXFLAGS -c $TMPDIR/test.cpp -o $TMPDIR/test.o; then
+    echo 2>&1 "error: could not compile a test ffmpeg/libavutil C++ source file"
+    echo 2>&1 "error: this usually means your ffmpeg/libav version is not up to date"
+    exit 1
+fi
+
+# Check if x264 is patched for libdrc support.
+cat >$TMPDIR/test.cpp <<EOF
+#include <stdint.h>
+#include <x264.h>
+
+int main(void) {
+  x264_param_t p;
+  p.b_drh_mode = 1;
+  (void)p;
+  return 0;
+}
+EOF
+
+if ! $CXX $CXXFLAGS -c $TMPDIR/test.cpp -o $TMPDIR/test.o; then
+    echo 2>&1 "error: could not compile a test x264 C++ source file"
+    echo 2>&1 "error: this usually means pkg-config is not finding the patched x264 version - check PKG_CONFIG_PATH"
+    exit 1
+fi
+
+# Build demos only if we have the required libs installed
+DEMOS_DEPS="glew sdl" #DEMOS_DEPS="gl glu glew sdl"
+LDFLAGS_DEMOS=-lpthread
+if [ x"$DEMOS" = x"y" ]; then
+    for DEMOS_DEP in $DEMOS_DEPS
+    do
+        if lib_present $DEMOS_DEP; then
+            CXXFLAGS+=" $(lib_cflags $DEMOS_DEP)"
+            LDFLAGS_DEMOS+=" $(lib_ldflags $DEMOS_DEP)"
+        else
+           echo 2>&1 "error: demos cannot be built because one of the dependencies ($DEMOS_DEP) could not be found"
+        echo 2>&1 "error: demos build can be disabled with --disable-demos"
+        exit 1
+        fi
+    done
+fi
+
+# Show a summary to the user
+cat <<EOF
+Summary:
+  Installation prefix: $PREFIX
+  Debug mode: $DEBUG
+  Build demos: $DEMOS
+
+Run 'make' to build libdrc.
+EOF
+
+# Output generation
+cat >Makefile.config <<EOF
+PREFIX:=$PREFIX
+DEMOS:=$DEMOS
+CXX:=$CXX
+CXXFLAGS:=$CXXFLAGS
+LDFLAGS:=$LDFLAGS
+LDFLAGS_DEMOS:=$LDFLAGS_DEMOS
+EOF
+
+cp libdrc.pc.in libdrc.pc
+sed -i "s,@@PREFIX@@,$PREFIX," libdrc.pc

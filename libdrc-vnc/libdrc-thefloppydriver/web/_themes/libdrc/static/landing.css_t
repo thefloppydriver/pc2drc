@@ -1,0 +1,35 @@
+#landing-intro {
+    padding: 5em 0;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+    background-color: #003A58;
+    color: #fff;
+}
+
+@media (max-width:991px) {
+    #landing-intro {
+        padding-top: 1em;
+        padding-bottom: 1em;
+    }
+}
+
+#landing-intro .tshadow {
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+}
+
+#landing-intro h2 small {
+    color: #fafafa;
+}
+
+.landing-row:first-child {
+    margin-top: 3em;
+}
+.landing-row:last-child {
+    margin-bottom: 2em;
+}
+
+.landing-row {
+    margin: 1em 0;
+}
+.landing-row .icon-block {
+    height: 120px;
+}

@@ -1,0 +1,28 @@
+libdrc - a C++ library for interaction with a Nintendo Wii U Gamepad
+====================================================================
+
+Current version: 1.0-dev
+
+Supported features
+------------------
+
+* OS support: Linux only
+* Streams and encodes video and audio data from a PC to a GamePad.
+* Handles input data from a GamePad and passes it to either the application or
+  the operating system
+
+Planned features
+----------------
+
+* Receiving and displaying video from a Wii U on a PC.
+* Generating HID packets and sending to a Wii U.
+
+Requirements
+------------
+
+libdrc currently only supports Linux operating systems patched to export the
+Wi-Fi TSF as a /sys file.
+
+This library only handles network layer 7: it assumes a DRC is already paired
+to your computer and does not handle all the Wi-Fi aspects. See our TODO
+project that handles these aspects of Wii U Gamepad handling.

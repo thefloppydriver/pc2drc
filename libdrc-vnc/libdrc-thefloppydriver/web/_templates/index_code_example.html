@@ -1,0 +1,11 @@
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">drc</span><span class="o">::</span><span class="n">Streamer</span><span class="o">&gt;</span> <span class="n">streamer</span><span class="p">(</span><span class="k">new</span> <span class="n">drc</span><span class="o">::</span><span class="n">Streamer</span><span class="p">());</span>
+<span class="n">streamer</span><span class="o">-&gt;</span><span class="n">Start</span><span class="p">();</span>
+
+<span class="c1">// I've got some video!</span>
+<span class="n">streamer</span><span class="o">-&gt;</span><span class="n">PushVidFrame</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span>
+                       <span class="n">drc</span><span class="o">::</span><span class="n">PixelFormat</span><span class="o">::</span><span class="n">kRGBA</span><span class="p">);</span>
+
+<span class="c1">// I've got some audio!</span>
+<span class="n">streamer</span><span class="o">-&gt;</span><span class="n">PushAudFrame</span><span class="p">(</span><span class="n">samples</span><span class="p">);</span>
+</pre></div>
+</div>

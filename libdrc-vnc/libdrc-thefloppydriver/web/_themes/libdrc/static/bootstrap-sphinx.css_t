@@ -1,0 +1,341 @@
+/*
+* bootstrap-sphinx.css
+* ~~~~~~~~~~~~~~~~~~~~
+*
+* Sphinx stylesheet -- Twitter Bootstrap theme.
+*/
+
+body {
+    background-color: #165E74;
+    position: relative;
+}
+#overall {
+    background-color: white;
+    z-index: 2;
+    position: relative;
+    padding-bottom: 2em;
+}
+.navbar-inverse {
+    z-index: 10;
+    background: transparent;
+    color: #fff;
+    padding: 17px 0 0;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+    border: none;
+    position: relative;
+}
+.navbar-header {
+    min-height: 67px;
+    padding-bottom: 17px;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    color: #fff;
+    margin-bottom: 3px;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #fff;
+    /*text-indent: -9999px;*/
+    width: 110px;
+    padding: 4px 0 0 0;
+}
+
+.page-top {
+    top: 0px;
+}
+
+a:focus, button:focus {
+    outline: none;
+}
+
+.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
+    border-color: #002539;
+}
+
+.navbar-inverse .navbar-toggle:hover, .navbar-inverse .navbar-toggle:focus {
+    background-color: #003A58;
+}
+
+.navbar-inverse .navbar-toggle {
+    border-color: #fff;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    transition: background-color 0.4s;
+}
+.navbar-inverse .navbar-nav>li>a:hover, .navbar-inverse .navbar-nav>li>a:focus {
+    color: #ffffff;
+    background-color: #003A58;
+}
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus {
+    color: #ffffff;
+    background-color: #003A58;
+}
+
+pre {
+    border-radius: 0;
+    border: none;
+    padding: 10px 16px;
+    background-color: #333;
+    color: #efefef;
+}
+
+table {
+    border: 0;
+}
+
+.highlighttable .code pre {
+    font-size: 12px;
+}
+
+.highlighttable .linenos pre {
+    word-break: normal;
+    font-size: 12px;
+}
+
+div.highlight {
+    background: none;
+}
+
+table.field-list {
+    width: auto;
+}
+
+footer {
+    width: 100%;
+    padding: 2em 0;
+    background-color: #165E74;
+    color: #dedede;
+    border-top: 4px solid #003A58;
+    position: relative;
+}
+footer a, footer a:visited {
+    color: #dedede;
+    border-bottom: 1px dotted #a5d8c7;
+}
+footer a:hover {
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid #a5d8c7;
+}
+
+dd {
+    margin-left: 1em;
+    border-left: 3px solid #dedede;
+    padding-left: 0.9em;
+    border-radius: 0 0 0 6px;
+}
+
+div.section img {
+    max-width: 80%;
+    display: block;
+    margin: 0 auto;
+}
+
+.bs-sidenav form, .bs-sidenav #sourcelink {
+    padding: 5px 20px;
+}
+
+/* The code below is based on the bootstrap website sidebar */
+
+.bs-sidenav.affix {
+    position: static;
+}
+
+/* First level of nav */
+.bs-sidenav {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding-top:    10px;
+    padding-bottom: 10px;
+    text-shadow: 0 1px 0 #fff;
+    background-color: #f7f5fa;
+    border-radius: 5px;
+}
+
+/* All levels of nav */
+.bs-sidenav .nav > li > a {
+    display: block;
+    color: #716b7a;
+    padding: 5px 20px;
+}
+.bs-sidenav .nav > li > a:hover,
+.bs-sidenav .nav > li > a:focus {
+    text-decoration: none;
+    background-color: #e5e3e9;
+    border-right: 1px solid #dbd8e0;
+}
+.bs-sidenav .nav > .active > a,
+.bs-sidenav .nav > .active:hover > a,
+.bs-sidenav .nav > .active:focus > a {
+    font-weight: bold;
+    color: #563d7c;
+    background-color: transparent;
+    border-right: 1px solid #563d7c;
+}
+
+.bs-sidenav .nav .nav > li > a {
+    padding-top:    3px;
+    padding-bottom: 3px;
+    padding-left: 30px;
+    font-size: 90%;
+}
+
+.bs-sidenav .nav .nav .nav > li > a {
+    padding-top:    3px;
+    padding-bottom: 3px;
+    padding-left: 40px;
+    font-size: 90%;
+}
+
+.bs-sidenav .nav .nav .nav .nav > li > a {
+    padding-top:    3px;
+    padding-bottom: 3px;
+    padding-left: 50px;
+    font-size: 90%;
+}
+
+/* Show and affix the side nav when space allows it */
+@media screen and (min-width: 992px) {
+    .bs-sidenav .nav > .active > ul {
+        display: block;
+    }
+    /* Widen the fixed sidenav */
+    .bs-sidenav.affix,
+    .bs-sidenav.affix-bottom {
+        width: 213px;
+    }
+    .bs-sidenav.affix {
+        position: fixed; /* Undo the static from mobile first approach */
+        top: 80px;
+    }
+    .bs-sidenav.affix-bottom {
+        position: absolute; /* Undo the static from mobile first approach */
+    }
+    .bs-sidenav.affix-bottom .bs-sidenav,
+    .bs-sidenav.affix .bs-sidenav {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+@media screen and (min-width: 1200px) {
+    /* Widen the fixed sidenav again */
+    .bs-sidenav.affix-bottom,
+    .bs-sidenav.affix {
+        width: 263px;
+    }
+}
+
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+   /* Small devices (tablets, 768px and up) */
+   @media (min-width: 980px) {
+       .navbar-inverse .navbar-nav {
+           float: right;
+           margin: 6px 0 2px 0;
+       }
+       .navbar-inverse .navbar-nav li {
+           margin-left: 3px;
+       }
+       .navbar-inverse .navbar-nav li a {
+           display: inline-block;
+           padding: 8px 12px;
+           color: #fff;
+           border-radius: 3px;
+           margin-bottom: 0;
+       }
+       .navbar-inverse .navbar-collapse {
+           background-color: rgba(255, 255, 255, 0);
+           text-align: center;
+           -webkit-box-shadow: inset 0 4px 0 rgba(0, 0, 0, 0);
+           -moz-box-shadow: inset 0 4px 0 rgba(0, 0, 0, 0);
+           box-shadow: inset 0 4px 0 rgba(0, 0, 0, 0);
+           margin-top: 0;
+       }
+   }
+   /* Medium devices (desktops, 992px and up) */
+   @media (min-width: 992px) {
+       .navbar-inverse .navbar-nav {
+           float: right;
+           margin: 6px 0 2px 0;
+       }
+       .navbar-inverse .navbar-nav li {
+           margin-left: 5px;
+       }
+       .navbar-inverse .navbar-nav li a {
+           display: inline-block;
+           padding: 8px 16px;
+           color: #fff;
+       }
+       .navbar-inverse .navbar-collapse {
+           background-color: rgba(255, 255, 255, 0);
+           text-align: center;
+           -webkit-box-shadow: inset 0 4px 0 rgba(0, 0, 0, 0);
+           -moz-box-shadow: inset 0 4px 0 rgba(0, 0, 0, 0);
+           box-shadow: inset 0 4px 0 rgba(0, 0, 0, 0);
+       }
+   }
+
+
+/* buttons */
+.btn-dl {
+  background-color: #9a0e7b;
+  border-color: #9a0e7b;
+  color: #fff;
+}
+.btn-dl:hover,
+.btn-dl:focus,
+.btn-dl:active,
+.btn-dl.active {
+  background-color: #830c68;
+  border-color: #6b0a56;
+  color: #fff;
+}
+.btn-dl.disabled:hover,
+.btn-dl.disabled:focus,
+.btn-dl.disabled:active,
+.btn-dl.disabled.active,
+.btn-dl[disabled]:hover,
+.btn-dl[disabled]:focus,
+.btn-dl[disabled]:active,
+.btn-dl[disabled].active,
+fieldset[disabled] .btn-dl:hover,
+fieldset[disabled] .btn-dl:focus,
+fieldset[disabled] .btn-dl:active,
+fieldset[disabled] .btn-dl.active {
+  background-color: #9a0e7b;
+  border-color: #9a0e7b;
+}
+
+
+.btn-learn {
+  background-color: #a3a3a3;
+  border-color: #a3a3a3;
+  color: #fff;
+}
+.btn-learn:hover,
+.btn-learn:focus,
+.btn-learn:active,
+.btn-learn.active {
+  background-color: #969696;
+  border-color: #8a8a8a;
+  color: #fff;
+}
+.btn-learn.disabled:hover,
+.btn-learn.disabled:focus,
+.btn-learn.disabled:active,
+.btn-learn.disabled.active,
+.btn-learn[disabled]:hover,
+.btn-learn[disabled]:focus,
+.btn-learn[disabled]:active,
+.btn-learn[disabled].active,
+fieldset[disabled] .btn-learn:hover,
+fieldset[disabled] .btn-learn:focus,
+fieldset[disabled] .btn-learn:active,
+fieldset[disabled] .btn-learn.active {
+  background-color: #a3a3a3;
+  border-color: #a3a3a3;
+}

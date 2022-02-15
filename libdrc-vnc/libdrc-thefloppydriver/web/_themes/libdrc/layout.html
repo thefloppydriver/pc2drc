@@ -1,0 +1,129 @@
+{% extends "basic/layout.html" %}
+
+{% set theme_css_files = [] %}
+{% set bootstrap_version, bootstrap_additional_css, navbar_version = "3.0.0", "theme", "" %}
+{% set bs_span_prefix = "col-md-" %}
+
+{% set theme_css_files = theme_css_files + [
+        '_static/bootstrap-' + bootstrap_version + '/css/bootstrap.min.css',
+        '_static/bootstrap-' + bootstrap_version + '/css/bootstrap-' + bootstrap_additional_css + '.min.css',
+        '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css',
+        '_static/bootstrap-sphinx.css',
+    ]
+%}
+
+{% set css_files = css_files + theme_css_files %}
+
+{% set script_files = script_files + [
+        '_static/js/jquery-1.9.1.min.js',
+        '_static/js/jquery-fix.js',
+        '_static/bootstrap-' + bootstrap_version + '/js/bootstrap.min.js',
+        '_static/bootstrap-sphinx.js'
+    ]
+%}
+
+{%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and sidebars %}
+
+{%- set bs_content_width = render_sidebar and "9" or "12"%}
+
+{%- block doctype -%}
+<!DOCTYPE html>
+{%- endblock %}
+
+{# Sidebar: Rework into our Bootstrap nav section. #}
+{% macro navBar(show_logo=True) %}
+{% include "navbar" + navbar_version + ".html" %}
+{% endmacro %}
+
+{%- macro bsidebar() %}
+    {%- if render_sidebar %}
+    <div class="{{ bs_span_prefix }}3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+            {%- for sidebartemplate in sidebars %}
+                {%- include sidebartemplate %}
+            {%- endfor %}
+        </div>
+    </div>
+    {%- endif %}
+{%- endmacro %}
+
+{%- block extrahead %}
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+{% set favicon_path = pathto('_static/favicon.ico', 1) %}
+<link rel="icon" type="image/x-icon" href="{{ favicon_path }}" />
+<link rel="shortcut icon" type="image/x-icon" href="{{ favicon_path }}" />
+{% endblock %}
+
+{# Silence the sidebar's, relbar's #}
+{% block header %}{% endblock %}
+{% block relbar1 %}{% endblock %}
+{% block relbar2 %}{% endblock %}
+{% block sidebarsourcelink %}{% endblock %}
+
+{%- block content %}
+{{ navBar() }}
+<div id="overall">
+<div class="container">
+    <div class="row">
+        {%- block sidebar1 %}{{ bsidebar() }}{% endblock %}
+        <div class="{{ bs_span_prefix }}{{ bs_content_width }}">
+            {% block body %}{% endblock %}
+        </div>
+        {% block sidebar2 %} {# possible location for sidebar #} {% endblock %}
+        {% if pagename not in theme_no_relation_pages %}
+            {% include "relations.html" %}
+        {% endif %}
+    </div>
+</div>
+</div>
+{%- endblock %}
+
+{%- block footer %}
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                {%- if show_copyright %}
+                    {%- if hasdoc('copyright') %}
+                        {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}<br/>
+                    {%- else %}
+                        {% trans copyright=copyright|e %}&copy; Copyright {{ copyright }}.{% endtrans %}<br/>
+                    {%- endif %}
+                {%- endif %}
+
+                {%- if last_updated %}
+                    {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}<br/>
+                {%- endif %}
+
+                {%- if show_sphinx %}
+                    {% trans sphinx_version=sphinx_version|e %}Powered by <a href="http://sphinx.pocoo.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}<br/>
+                {%- endif %}
+            </div>
+
+            <div class="col-md-4">
+            </div>
+
+            <div class="col-md-4">
+                <a href="#">Back to top</a>
+                {% if theme_source_link_position == "footer" %}
+                    <br/>
+                    {% include "sourcelink.html" %}
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</footer>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-46672635-1', 'libdrc.org');
+  ga('send', 'pageview');
+</script>
+{%- endblock %}
