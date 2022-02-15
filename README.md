@@ -7,14 +7,14 @@
  
  
  # What do I need?
-  WiiU (Hopefully I'll be able to remove this requirement soon.)
-  WiiU Gamepad
-  **CLEAN** install of Ubuntu 20.04 LTS (original project used 18.04 LTS, it should work fine on there and I'll test it soon but lmk)
+  - WiiU (Hopefully I'll be able to remove this requirement soon.)
+  - WiiU Gamepad
+  - **CLEAN** install of Ubuntu 20.04 LTS (original project used 18.04 LTS, it should work fine on there and I'll test it soon but lmk)
   802.11n 5GHz rt2800usb-compatable USB WiFi Adapter
     (RT5572-based adapters are the best, I'm using this and it works great -> https://www.amazon.com/Wireless-Portable-Frequency-Supports-Function/dp/B08LL94TK8)
-  ~15 GiB of storage space minimum. (why? Because we'll be recompiling the linux kernel, of course :)  )
+  - ~15 GiB of storage space minimum. (why? Because we'll be recompiling the linux kernel, of course :)  )
     (Don't worry, the project only uses ~20MB after it's installed)
-  A little bit of patience and a willingness to send me bug reports if something goes wrong!
+  - A little bit of patience and a willingness to send me bug reports if something goes wrong!
   
   
  # Dependencies
