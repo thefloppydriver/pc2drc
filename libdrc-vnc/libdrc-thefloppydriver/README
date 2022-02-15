@@ -1,3 +1,12 @@
+NOTE/DISCLAIMER: this readme is kept from the original repository. I also 
+updated this repo with ywh233's framerate options and ywh233h's H.264 
+implementation.
+  -thefloppydriver
+
+
+
+repository location: https://bitbucket.org/kordariffic/libdrc/src/input-mods/
+
 libdrc - a C++ library for interaction with a Nintendo Wii U Gamepad
 ====================================================================
 
