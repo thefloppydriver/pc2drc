@@ -1,0 +1,81 @@
+# Configures an AP that looks like WiiU normal mode
+###############################################################################
+# Common options
+###############################################################################
+interface=WiiUAP
+driver=nl80211
+#logger_syslog=-1
+#logger_syslog_level=2
+logger_stdout=-1
+logger_stdout_level=0
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=sudo
+hw_mode=a
+channel=165
+
+beacon_int=100
+dtim_period=3
+# 0 = accept unless in deny list
+# 1 = deny unless in accept list
+macaddr_acl=0
+#deny_mac_file=/etc/hostapd.deny
+# bit 0 = Open System Authentication
+# bit 1 = Shared Key Authentication (requires WEP)
+auth_algs=3
+wmm_enabled=1
+# WMM-PS Unscheduled Automatic Power Save Delivery [U-APSD]
+# Enable this flag if U-APSD supported outside hostapd (eg., Firmware/driver)
+uapsd_advertisement_enabled=1
+
+wmm_ac_be_acm=0
+wmm_ac_be_aifs=2
+wmm_ac_be_cwmin=4
+wmm_ac_be_cwmax=5
+wmm_ac_be_txop_limit=47
+
+wmm_ac_bk_acm=0
+wmm_ac_bk_aifs=7
+wmm_ac_bk_cwmin=4
+wmm_ac_bk_cwmax=10
+wmm_ac_bk_txop_limit=0
+
+wmm_ac_vi_acm=0
+wmm_ac_vi_aifs=3
+wmm_ac_vi_cwmin=4
+wmm_ac_vi_cwmax=5
+wmm_ac_vi_txop_limit=94
+
+wmm_ac_vo_acm=0
+wmm_ac_vo_aifs=3
+wmm_ac_vo_cwmin=4
+wmm_ac_vo_cwmax=5
+wmm_ac_vo_txop_limit=47
+
+ieee80211n=1
+# wiiu uses greenfield, my driver doesn't support it
+# gamepad doesn't support it anyways.
+#ht_capab=[GF]
+
+###############################################################################
+# Normal mode AP setup
+###############################################################################
+# ze internetz
+#bridge=br0
+
+ssid=ssid
+
+# default: disabled (0)
+# 1 = send empty (length=0) SSID in beacon and ignore probe request for
+#     broadcast SSID
+# 2 = clear SSID (ASCII 0), but keep the original length (this may be required
+#     with some clients that do not support empty SSID) and ignore probe
+#     requests for broadcast SSID
+ignore_broadcast_ssid=2
+
+# bit0 = WPA
+# bit1 = IEEE 802.11i/RSN (WPA2) (dot11RSNAEnabled)
+wpa=2
+wpa_psk=wpa_psk
+# these are the brilliantly modified ciphers by tendoNin
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=CCMP

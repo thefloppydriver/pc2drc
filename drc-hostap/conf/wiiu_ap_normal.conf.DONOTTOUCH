@@ -1,0 +1,49 @@
+# Do. Not. Touch. This. File. -thefloppydriver
+
+ssid=ssid
+wpa_psk=wpa_psk
+interface=WiiUAP
+
+driver=nl80211
+logger_stdout=-1
+logger_stdout_level=0
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=sudo
+hw_mode=a
+channel=165
+beacon_int=100
+dtim_period=3
+macaddr_acl=0
+auth_algs=3
+wmm_enabled=1
+uapsd_advertisement_enabled=0 ######ORIGINALLY SET TO 1!!!
+wmm_ac_be_acm=0
+wmm_ac_be_aifs=2
+wmm_ac_be_cwmin=4
+wmm_ac_be_cwmax=5
+wmm_ac_be_txop_limit=47
+wmm_ac_bk_acm=0
+wmm_ac_bk_aifs=7
+wmm_ac_bk_cwmin=4
+wmm_ac_bk_cwmax=10
+wmm_ac_bk_txop_limit=0
+wmm_ac_vi_acm=0
+wmm_ac_vi_aifs=3
+wmm_ac_vi_cwmin=4
+wmm_ac_vi_cwmax=5
+wmm_ac_vi_txop_limit=94
+wmm_ac_vo_acm=0
+wmm_ac_vo_aifs=3
+wmm_ac_vo_cwmin=4
+wmm_ac_vo_cwmax=5
+wmm_ac_vo_txop_limit=47
+ieee80211n=1
+# wiiu uses greenfield, my driver doesn't support it
+# gamepad doesn't support it anyways.
+#ht_capab=[GF]
+ignore_broadcast_ssid=2
+# bit0 = WPA
+# bit1 = IEEE 802.11i/RSN (WPA2) (dot11RSNAEnabled)
+wpa=2
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=CCMP

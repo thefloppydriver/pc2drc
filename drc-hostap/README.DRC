@@ -1,0 +1,20 @@
+hostapd/wpa_supplicant DRC patches
+==================================
+
+**NOTE** Like all our patches to standard software, this code is fragile and
+not ready for production use. Use at your own risk.
+
+* Added a new compile-time option: CONFIG_TENDONIN
+  * Enables Wii U Gamepad specific Wi-Fi modifications: WPA PTK rot3 and WPS
+    KDK rot3
+  * Changes the RSN selectors to use the Nintendo selector values (a4-c0-e1)
+  * Changes the WPS AP detection to detect a Wii U pairing AP as a WPS
+    compatible AP.
+
+* Added sample configuration files in the conf/ directory for 3 use cases:
+  * drc_pair.conf: wpa_supplicant config to connect a device to a Wii U
+  * wiiu_ap_normal.conf: hostapd config to connect a Gamepad to a device
+  * wiiu_ap_pairing.conf: hostapd config to simulate pairing a Gamepad to a
+    device
+
+* Added a sample hostapd compile-time configuration file in conf/hostapd.config

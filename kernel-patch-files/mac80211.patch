@@ -1,0 +1,114 @@
+From 4a9823cf2a6733bc15a05cffaebd8850d07451a7 Mon Sep 17 00:00:00 2001
+From: Pierre Bourdon <delroth@gmail.com>
+Date: Wed, 25 Dec 2013 14:47:44 +0100
+Subject: [PATCH] Add the TSF device node to mac80211 devices
+
+---
+ README.DRC |  8 ++++++++
+ iface.c    | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 57 insertions(+)
+ create mode 100644 README.DRC
+
+diff --git a/README.DRC b/README.DRC
+new file mode 100644
+index 0000000..124bd3a
+--- /dev/null
++++ b/README.DRC
+@@ -0,0 +1,8 @@
++mac80211 DRC patches
++====================
++
++**NOTE** Like all our patches to standard software, this code is fragile and
++not ready for production use. Use at your own risk.
++
++* Added a new /sys node for mac80211 devices: "tsf".
++  * Exports the Wi-Fi Time Synchronization Function to userland.
+diff --git a/iface.c b/iface.c
+index fcecd63..ba041b5 100644
+--- a/iface.c
++++ b/iface.c
+@@ -1580,6 +1580,44 @@ static void ieee80211_cleanup_sdata_stas_wk(struct work_struct *wk)
+ 	ieee80211_cleanup_sdata_stas(sdata);
+ }
+ 
++static ssize_t ieee80211_tsf_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct net_device *ndev;
++	struct ieee80211_sub_if_data *sdata;
++	int need_remove = -1;
++	u64 output = 0ULL;
++
++	ndev = container_of(dev, struct net_device, dev);
++
++	if(ndev == NULL) return -EIO;
++
++	sdata = IEEE80211_DEV_TO_SUB_IF(ndev);
++
++	if(sdata == NULL) return -EIO;
++
++	if((sdata->flags & IEEE80211_SDATA_IN_DRIVER) == 0)
++	{
++		need_remove = drv_add_interface(sdata->local, sdata);
++		if(need_remove != 0)
++		{
++			return -EIO;
++		}
++	}
++
++	output = drv_get_tsf(sdata->local, sdata);
++
++	if(need_remove == 0) // add earlier was needed and successful, so undo
++	{
++		drv_remove_interface(sdata->local, sdata);
++	}
++
++	memcpy(buf, &output, sizeof(u64));
++
++	return sizeof(u64);
++}
++
++DEVICE_ATTR(tsf, S_IRUGO, ieee80211_tsf_show, NULL );
++
+ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
+ 		     struct wireless_dev **new_wdev, enum nl80211_iftype type,
+ 		     struct vif_params *params)
+@@ -1696,6 +1734,12 @@ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
+ 			free_netdev(ndev);
+ 			return ret;
+ 		}
++
++		ret = device_create_file(&ndev->dev, &dev_attr_tsf);
++		if(ret) {
++			unregister_netdevice(ndev); // gets freed by destructor
++			return ret;
++		}
+ 	}
+ 
+ 	mutex_lock(&local->iflist_mtx);
+@@ -1719,6 +1763,7 @@ void ieee80211_if_remove(struct ieee80211_sub_if_data *sdata)
+ 	synchronize_rcu();
+ 
+ 	if (sdata->dev) {
++		device_remove_file(&sdata->dev->dev, &dev_attr_tsf);
+ 		unregister_netdevice(sdata->dev);
+ 	} else {
+ 		cfg80211_unregister_wdev(&sdata->wdev);
+@@ -1760,11 +1805,15 @@ void ieee80211_remove_interfaces(struct ieee80211_local *local)
+ 		list_del(&sdata->list);
+ 
+ 		if (sdata->dev)
++		{
++			device_remove_file(&sdata->dev->dev, &dev_attr_tsf);
+ 			unregister_netdevice_queue(sdata->dev, &unreg_list);
++		}
+ 		else
+ 			list_add(&sdata->list, &wdev_list);
+ 	}
+ 	mutex_unlock(&local->iflist_mtx);
++
+ 	unregister_netdevice_many(&unreg_list);
+ 	list_del(&unreg_list);
+ 
+-- 
+2.32.0
+
