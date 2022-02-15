@@ -50,5 +50,5 @@
    
  
  # Notes:
-  This project still has a lot of work to be done. Please fork this project, make changes, and make push requests. All contributions are welcome! 
+  This project still has a lot of work to be done. Please fork this project, make changes, and make pull requests. All contributions are welcome! 
   Email me: thefloppydriver@gmail.com
