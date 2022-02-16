@@ -75,7 +75,7 @@ cd ./libvncserver/build
 
 make clean
 cmake ..
-cmake --build .
+cmake --build . --parallel `nproc`
 make install
 
 cd ../..
@@ -171,7 +171,7 @@ cd ./drc-x264
 make clean
 ./configure --prefix=/usr/local --enable-static # --enable-shared
 make -j`nproc`
-make install
+make install -j`nproc`
 
 cd ..
 
