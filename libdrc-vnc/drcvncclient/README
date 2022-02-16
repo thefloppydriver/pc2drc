@@ -1,3 +1,15 @@
+NOTE/DISCLAIMER: this readme is kept from the original repository. I've made 
+quite a few changes and these instructions will *not* work on my repository, 
+nor were they ever comprehensive install instructions to begin with. 
+  -thefloppydriver
+
+
+
+
+
+original repo location: https://github.com/duanemach/drcvncclient
+
+Readme:
 DRC VNC Client - VNC client for the Wii U Gamepad using libdrc
 
 Pre-requisites
