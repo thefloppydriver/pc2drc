@@ -38,6 +38,11 @@ apt-get install libavutil-dev -y
 apt-get install yasm mesa-utils freeglut3 freeglut3-dev libglew-dev libgl1-mesa-dev libsdl1.2-dev libsdl2-dev tigervnc-standalone-server cmake python3 -y
 apt-get remove libx264-dev -y
 
+mkdir -m 775 ./external_pkg_build_dir
+mkdir -m 775 ./external_pkg_install_dir
+
+chown -R $USERNAME:$USERNAME ./external_pkg_build_dir
+chown -R $USERNAME:$USERNAME ./external_pkg_install_dir
 
 rm -rf ./external_pkg_install_dir/* #careful with this
 
