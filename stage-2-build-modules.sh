@@ -60,6 +60,8 @@ cd ./openssl-1.0.1u
 #~/Documents/bring-back-libdrc/bring-back-libdrc/drc-hostap/wpa_supplicant/Makefile Line 927:  LIBS += -lcrypto -lz
 #~/Documents/bring-back-libdrc/bring-back-libdrc/drc-hostap/wpa_supplicant/Makefile Line 928:  LIBS += -lcrypto -lz -ldl
 
+make clean -j`nproc`
+
 ./config --prefix=$script_dir/external_pkg_install_dir/ --openssldir=openssl threads zlib no-shared
 make -j`nproc`
 make install
@@ -81,7 +83,7 @@ make install
 cd ../..
 
 rm -rf ./libvncserver #careful
-
+rm -rf ./openssl-1.0.1u #careful
 
 
 #wget https://launchpad.net/~ubuntu-security/+archive/ubuntu/ppa/+build/7531893/+files/openssl_1.0.1-4ubuntu5.31_amd64.deb --no-check-certificate
@@ -99,7 +101,7 @@ rm -rf ./libvncserver #careful
 
 cd ..
 
-
+rm -d ./external_pkg_build_dir
 
 
 #####git clone https://bitbucket.org/memahaxx/drc-hostap.git
@@ -169,7 +171,7 @@ cd ../..
 
 cd ./drc-x264
 make clean
-./configure --prefix=/usr/local --enable-static # --enable-shared
+./configure --prefix=/usr/local --enable-static --enable-pic # --enable-shared
 make -j`nproc`
 make install -j`nproc`
 
@@ -180,7 +182,7 @@ cd ..
 
 cd ./libdrc-vnc/libdrc-thefloppydriver
 
-make clean
+make clean -j`nproc`
 PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH ./configure --disable-demos --disable-debug --prefix=/usr/local
 
 make -j`nproc`
