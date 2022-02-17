@@ -1,6 +1,9 @@
 # pc2drc
  Stream PC->WiiU Gamepad and Give your gamepad a new use! (Linux only)
  
+# HUGE DISCLAIMER:
+ THIS IS NOT FINISHED YET!!
+ DO NOT CLONE/RUN THIS PROJECT UNTIL I REMOVE THIS DISCLAIMER (will be removed Feb 19th, 2022)
  
 # What is this?
  An easy-to-setup way to stream your desktop directly from your PC to your WiiU Gamepad with full touchscreen/button support.
@@ -46,7 +49,8 @@
  # TODO:
    todo: add todo
    todo: add contributions
-   todo: remove necessity for WiiU Gamepad
+   todo: remove necessity for WiiU during pairing
+   todo: finish part-4-pc2drc.py
    
  
  # Notes:
