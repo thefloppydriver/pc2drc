@@ -47,10 +47,18 @@
    
    
  # TODO:
-   todo: add todo
+   ~~todo: add todo~~
    todo: add contributions
    todo: remove necessity for WiiU during pairing
    todo: finish part-4-pc2drc.py
+   todo: Port to openssl 1.1
+   todo: Port to openssl 3.0
+   todo: Emulate TSF in software (removes need for kernel patch, removes need for special wifi adapter, makes porting to Windows feasable)
+ 
+ 
+ # Known Bugs: 
+  Connection drops randomly (maybe error in network stack, maybe decoding error)
+  Visible artifacting on gamepad (x264 encoding bug, this is NOT a network related issue)
    
  
  # Notes:
