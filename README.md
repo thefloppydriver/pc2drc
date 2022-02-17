@@ -1,8 +1,10 @@
 # pc2drc
  Stream PC->WiiU Gamepad and Give your gamepad a new use! (Linux only)
  
+ 
 # HUGE DISCLAIMER:
  THIS IS NOT FINISHED YET!!
+ 
  DO NOT CLONE/RUN THIS PROJECT UNTIL I REMOVE THIS DISCLAIMER (will be removed Feb 19th, 2022)
  
 # What is this?
@@ -49,19 +51,27 @@
    
  # TODO:
    ~~todo: add todo~~
-   todo: add contributions
-   todo: remove necessity for WiiU during pairing
+   
+   todo: add contributions and links to software used in this project
+   
+   todo: remove necessity for WiiU during pairing (seemingly easy)
+   
    todo: finish part-4-pc2drc.py
+   
    todo: Port to openssl 1.1
+   
    todo: Port to openssl 3.0
+   
    todo: Emulate TSF in software (removes need for kernel patch, removes need for special wifi adapter, makes porting to Windows feasable)
  
  
  # Known Bugs: 
-  Connection drops randomly (maybe error in network stack, maybe decoding error)
+  Connection between PC and Gamepad randomly (maybe error in network stack, maybe decoding error, maybe encoding error)
+  
   Visible artifacting on gamepad (x264 encoding bug, this is NOT a network related issue)
    
  
  # Notes:
   This project still has a lot of work to be done. Please fork this project, make changes, and make pull requests. All contributions are welcome! 
+  
   Email me: thefloppydriver@gmail.com
