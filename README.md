@@ -58,6 +58,8 @@
    
    todo: finish part-4-pc2drc.py
    
+   todo: remake stage-3-pair-with-wiiu.py in C using wpa_cli's C interface
+   
    todo: Port to openssl 1.1
    
    todo: Port to openssl 3.0

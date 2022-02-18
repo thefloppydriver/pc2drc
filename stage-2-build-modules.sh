@@ -35,7 +35,7 @@ apt-get install ffmpeg -y
 apt-get install libswscale-dev -y
 apt-get install libavutil-dev -y
 
-apt-get install yasm mesa-utils freeglut3 freeglut3-dev libglew-dev libgl1-mesa-dev libsdl1.2-dev libsdl2-dev tigervnc-standalone-server cmake python3 -y
+apt-get install yasm mesa-utils freeglut3 freeglut3-dev libglew-dev libgl1-mesa-dev libsdl1.2-dev libsdl2-dev tigervnc-standalone-server tigervnc-viewer cmake python3 -y
 apt-get remove libx264-dev -y
 
 mkdir -m 775 ./external_pkg_build_dir
@@ -207,12 +207,22 @@ mkdir ~/.vnc
 
 #tigervnc startup script that inits for a gamepad connection
 
-printf '#!/bin/sh\nxrdb $HOME/.Xresources\nxsetroot -solid grey\nexport XKL_XMODMAP_DISABLE=1\n/etc/X11/Xsession\n[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup\n[ -r $HOME/.Xrespirces ] && xrdb $HOME/.Xresources\nvncconfig -iconic &\ndbus-launch --exit-with-session gnome-session &\nsleep 1 && xrandr --fb 854x480 &' > ~/.vnc/xstartup
+#printf '#!/bin/sh\nxrdb $HOME/.Xresources\nxsetroot -solid grey\nexport XKL_XMODMAP_DISABLE=1\n/etc/X11/Xsession\n[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup\n[ -r $HOME/.Xrespirces ] && xrdb $HOME/.Xresources\nvncconfig -iconic &\ndbus-launch --exit-with-session gnome-session &\nsleep 1 && xrandr --fb 854x480 &' > ~/.vnc/xstartup
+printf '#!/bin/sh\ntest x"$SHELL" = x"" && SHELL=/bin/bash\ntest x"$1"     = x"" && set -- default\nvncconfig -iconic &\n"$SHELL" -l <<EOF\nexport XDG_SESSION_TYPE=x11\ndbus-launch --exit-with-session gnome-session\nexec /etc/X11/Xsession "$@"\nEOF\nvncserver -kill $DISPLAY' > /etc/vnc/xstartup
+printf '#!/bin/sh\n[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup\n[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources\nsleep 1 && xrandr --fb 854x480 &' > ~/.vnc/xstartup
 
-echo | vncpasswd -f > ~/.vnc/passwd
+/bin/bash -c "echo -e '\n\nn' | vncpasswd"; echo
+
+chmod 0755 /etc/vnc/xstartup
+chmod 0755 ~/.vnc/xstartup
+chmod 0664 ~/.vnc/passwd
+
+#echo | vncpasswd -f > ~/.vnc/passwd
 
 chown -R $USERNAME:$USERNAME ~/.vnc
 
+#tigervncserver :1 -passwd ~/.vnc/passwd -geometry 1280x720 -depth 24 -localhost
+#xtigervncviewer :1 -passwd ~/.vnc/passwd -DesktopSize=864x480
 
 
 
