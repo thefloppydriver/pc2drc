@@ -9,3 +9,6 @@ drc-hostap/hostapd/.config
 drc-hostap/wpa_supplicant/get_psk.conf
 drc-hostap/conf/generated_netboot_info.conf
 drc-hostap/wpa_supplicant/get_psk.conf
+drc-hostap/wpa_supplicant/get_psk.conf
+drc-hostap/wpa_supplicant/get_psk.conf
+drc-hostap/wpa_supplicant/get_psk.conf
