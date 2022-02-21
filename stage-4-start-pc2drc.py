@@ -111,6 +111,7 @@ if os.path.exists("/sys/class/net/"+wifi_interface+"/tsf") != True:
 
 
 
+
 #iw_reg_set_us_output = pexpect.spawn('iw reg set US')
 #iw_reg_set_us_output.expect(pexpect.EOF)
 #time.sleep(1)
@@ -219,7 +220,7 @@ if os.path.exists('./drc-hostap/conf/generated_netboot_info.conf'):
     wii_u_gamepad_bssid = file.read(17) #because the bssid is only 17 chars
     file.close()
 else:
-    print("Gamepad configuration not found. Please run stage-3.")
+    print("Gamepad configuration not found. Please run stage 3.")
     input("(press enter to quit)")
     sys.exit(0)
 
@@ -247,7 +248,13 @@ subprocess.check_call(['ip', 'link', 'set', 'dev', wifi_interface, 'down'])
 time.sleep(1)
 
 #hostapd_output = pexpect.spawn('./drc-hostap/hostapd/hostapd -dd ./drc-hostap/conf/generated_ap_normal.conf')
-subprocess.check_call(['./drc-hostap/hostapd/hostapd', '-B', './drc-hostap/conf/generated_ap_normal.conf'])
+try:
+    subprocess.check_call(['./drc-hostap/hostapd/hostapd', '-B', './drc-hostap/conf/generated_ap_normal.conf'])
+except subprocess.CalledProcessError:
+    print("Fatal Error while starting hostapd.")
+    input("(press enter to quit)")
+    sys.exit(0)
+
 
 time.sleep(1)
 
@@ -255,6 +262,15 @@ subprocess.check_call(['ip', 'a', 'a', '192.168.1.10/24', 'dev', 'WiiUAP'])
 subprocess.check_call(['ip', 'l', 'set', 'mtu', '1756', 'dev', 'WiiUAP'])
 
 time.sleep(1)
+
+file = open("/sys/class/net/"+wifi_interface+"/tsf", 'rb')
+file_output = file.read(8)
+if file_output == b'\x00\x00\x00\x00\x00\x00\x00\x00' or file_output == b'\xff\xff\xff\xff\xff\xff\xff\xff':
+    print("Selected wireless interface ("+wifi_interface+" is not exporting TSF value.")
+    print("Either the wireless interface doesn't support mac80211 get_tsf function or the kernel patch isn't working.")
+    input("(press enter to quit)")
+    sys.exit(0)
+
 
 print("Waiting for gamepad...")
 print("(please turn on the WiiU Gamepad)")
