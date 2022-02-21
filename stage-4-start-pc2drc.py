@@ -301,7 +301,7 @@ print("Starting drcvncclient!")
 subprocess.check_call(['chmod', '777', '/dev/uinput']) #make sure that drcvncclient can write to this
 
 
-
+#subprocess.check_call(['cp', './stage-4-start-pc2drc.py', './start-pc2drc.py'])
 
 #print("start drcvncclient manually now.")
 #time.sleep(1000)

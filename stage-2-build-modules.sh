@@ -23,17 +23,27 @@ if [ ! -f "/sys/class/net/$(ip link show | grep -o -m1 "\w*wl\w*")/tsf" ]; then
    exit
 fi
 
+if [ ${PWD##*/} != "pc2drc" ]; then
+  echo "Parent folder is not named pc2drc. If this script isn't its intended directory you will have an unusable system."
+  read -n 1 -p "(press enter to quit)"
+  exit
+fi
+
+echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "An internet connection is required for this script to run. Try sudo service network-manager start."
+    read -n 1 -p "(press enter to quit)"
+    exit
+fi
+
 script_dir=$(pwd)
 
 
 apt --fix-broken install -y
 
-apt-get install libnl-3-dev -y
-apt-get install libnl-genl-3-dev -y
+apt-get install libnl-3-dev libnl-genl-3-dev -y
 
-apt-get install ffmpeg -y
-apt-get install libswscale-dev -y
-apt-get install libavutil-dev -y
+apt-get install ffmpeg libswscale-dev libavutil-dev -y
 
 apt-get install yasm mesa-utils freeglut3 freeglut3-dev libglew-dev libgl1-mesa-dev libsdl1.2-dev libsdl2-dev tigervnc-standalone-server tigervnc-viewer cmake python3 -y
 apt-get remove libx264-dev -y

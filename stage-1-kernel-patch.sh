@@ -11,6 +11,17 @@ if [ $(cd $HOME/.. && pwd) != "/home" ]; then
 fi
 
 
+if [ ${PWD##*/} != "pc2drc" ]; then
+  echo "Parent folder should be named pc2drc. If this script isn't in its intended directory there may be problems."
+  read -n 1 -p "(press enter to continue)"
+fi
+
+echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "An internet connection is required for this script to run. Try sudo service network-manager start."
+    read -n 1 -p "(press enter to quit)"
+    exit
+fi
 
 apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison -y
 

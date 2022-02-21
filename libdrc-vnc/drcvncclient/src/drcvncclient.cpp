@@ -7,7 +7,7 @@
  * -joystick
  *   Enables the system input feeder, which forwards button & joystick presses
  *   to the PC as uinput events. Useful for gaming.
- *   With this option, use the gamepad POWER button to toggle between joystick
+ *   With this option, use the gamepad TV button to toggle between joystick
  *   and mouse modes.
  *
  * Prerequisites:
@@ -29,7 +29,7 @@
  * Left click with ZL or ZR, and right click with L or R
  *
  * With the -joystick command line option, the gamepad starts in joystick mode.
- * Press the POWER button briefly to toggle between joystick and mouse mode.
+ * Press the TV button briefly to toggle between joystick and mouse mode.
  * In mouse mode the system input feeder is still active but feeding
  * idle/zero axis and button data to the system.
  *
@@ -576,12 +576,12 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
       }
     }
 
-    // if input feeder mode is on, push power button to toggle between
+    // if input feeder mode is on, push tv button to toggle between
     // full joystick mode (all buttons go to input feeder) or
     // mouse only mode, where trigger buttons are mouse clicks
     if (drcInputFeeder) {
-      if(pwrbutton != prev_pwrbutton) {
-        if (pwrbutton) {
+      if(tvbutton  != prev_tvbutton) {
+        if (tvbutton) {
           drcJoystickMode = !drcJoystickMode;
           if (!drcJoystickMode) {
             printf("Mouse button mode\n");
@@ -592,12 +592,12 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
           }
         }
       }
-      if(tvbutton != prev_tvbutton) {
+      /*if(tvbutton != prev_tvbutton) {
         if (tvbutton) {
           g_streamer->ResyncStreamer();
           printf("Stream Resynced!\n");
         }
-      }
+      }*/
     }
 
     prev_lbutton = lbutton;
@@ -659,7 +659,7 @@ int main(int argc,char** argv) {
   drc::InputData drc_input_data;
 
   if (drcInputFeeder) {
-    printf("Started in Joystick mode, toggle Mouse mode with POWER button\n");
+    printf("Started in Joystick mode, toggle Mouse mode with TV button\n");
     g_streamer->EnableSystemInputFeeder();
     drcJoystickMode = 1;
   } else {

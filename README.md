@@ -2,11 +2,6 @@
  Stream PC->WiiU Gamepad and Give your gamepad a new use! (Linux only)
  
  
-# HUGE DISCLAIMER:
- THIS IS NOT FINISHED YET!!
- 
- DO NOT CLONE/RUN THIS PROJECT UNTIL I REMOVE THIS DISCLAIMER (will be removed Feb 19th, 2022)
- 
 # What is this?
  An easy-to-setup way to stream your desktop directly from your PC to your WiiU Gamepad with almost 0 latency and full touchscreen/joystick support!
  
@@ -23,15 +18,16 @@
   - A little* bit of patience and a willingness to send me bug reports if something goes wrong!
   
   
- # Dependencies
-  Installing extra software is so 2010. I'll add a list later but there's nothing extra to worry about installing, the scripts install everything they need automatically without much fuss.
+ # Dependencies (included or installed automatically)
+  Openssl 1.0.1, libnl-3, libnl-genl-3, wpa_supplicant, hostapd, ffmpeg, libx264, libvncserver, libvnc, drcvncclient
   
   
  # (How to install) The WiFi adapter just came in, now what?
-  Open up your home directory (or where ever you want to install the project)
+  Open up the project folder
+  
   Run the following commands in order and follow their instructions:
   
-   `sudo -E ./stage-0-start-script.sh`
+   `sudo -E ./stage-0-init-script.sh`
    
    `sudo -E ./stage-1-kernel-patch.sh`
    
@@ -41,7 +37,7 @@
    
    `sudo -E python3 ./stage-4-start-pc2drc.py`
    
-  Once finished, simply run `sudo -E python3 ./start-pc2drc.py` to stream to your gamepad!
+  Once finished, simply run `sudo -E ./start-pc2drc.sh` to stream to your gamepad!
    
    
  # Extra Instructions and tutorials:
@@ -53,17 +49,11 @@
  # TODO: (in order of importance)
    ~~todo: add todo~~
    
-   todo (unfinished): finish part-4-pc2drc.py
-   
-   todo (unfinished): create start-pc2drc.py
-   
-   todo (feature): remove necessity for WiiU during pairing (seemingly easy)
-   
    todo (QoL, stability): Upgrade wpa_supplicant and hostapd and remodify them for WiiU support (Hard? Probably?)
    
    todo (QoL, stability): find better way to resize the tigervnc-server that doesn't involve connecting with xtigervncclient (stuff goes here) -DesktopSize 864x480
    
-   todo (misc.): add contributions and links to software used in this project
+   todo (feature): remove necessity for WiiU during pairing ~~(seemingly easy)~~ (Note: NOT EASY. NOT EASY. NOT EASY. NOT EASY.)
    
    todo (QoL, stability): remake wpa_cli.c to only output WiiU related information
    
@@ -72,14 +62,13 @@
    todo (feature): Port to openssl 3.0
    
    todo (feature): do mac80211 patch through DKMS using FlorianFranzen's drc-mac80211 repository (Previously known as FloFra. God he was hard to find. To anyone reading this please do not ever rename your account.)
- 
-   todo (feature): Maybe spam reset_tsf to allow something around 00000000 to always be set as tsf value when talking to gamepad
+
+   todo (bugfix): fix major x264 encoder issues
+   
+   todo (wishful thinking): add audio support
+   
  
  # Known Bugs: 
-  
-  (fix unimplemented) Pairing with the WiiU takes a *longgg* time.
-  
-  (fix unknown) Connection between PC and Gamepad randomly (maybe error in network stack, maybe decoding error, maybe encoding error)
   
   (fix unknown) Visible artifacting on gamepad (x264 encoding bug, this is NOT a network related issue)
    
