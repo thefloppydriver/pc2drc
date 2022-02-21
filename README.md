@@ -49,6 +49,8 @@
  # TODO: (in order of importance)
    ~~todo: add todo~~
    
+   todo (bugfix): output WiiU gamepad inputs to /dev/uinput when not in mouse mode.
+   
    todo (info): Add mouse mode and button bindings to the readme
    
    todo (QoL, stability): Upgrade wpa_supplicant and hostapd and remodify them for WiiU support (Hard? Probably?)
@@ -71,6 +73,8 @@
    
  
  # Known Bugs: 
+ 
+  (fix unknown) random disconnects
   
   (fix unknown) Visible artifacting on gamepad (x264 encoding bug, this is NOT a network related issue)
    
