@@ -429,14 +429,14 @@ void Push_DRC_Frame(rfbClient *cl) {
 
 void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
 
-  static int prev_x, prev_y, prev_buttons;
+  static int prev_x, prev_y, prev_buttons, prev_power_status;
   static int prev_lbutton, prev_rbutton, prev_pwrbutton, prev_dhat, prev_uhat, prev_rhat, prev_lhat, prev_abtn, prev_bbtn, prev_xbtn, prev_ybtn, prev_tvbutton, prev_startbtn, prev_selectbtn, prev_homebtn;
 
   // BUG: pressing a button without having had a touchscreen event sends the
   //      cursor to (0,0) as prev_x, prev_y are uninitialised.
 
   // New unique button event
-  if (input_data.buttons != prev_buttons) {
+  if (input_data.buttons != prev_buttons || input_data.power_status != prev_power_status) {
     int lbutton = input_data.buttons & (drc::InputData::kBtnZL | drc::InputData::kBtnZR);
     int rbutton = input_data.buttons & (drc::InputData::kBtnL | drc::InputData::kBtnR);
     int dhat = input_data.buttons & drc::InputData::kBtnDown;
@@ -451,7 +451,8 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
     int selectbtn = input_data.buttons & drc::InputData::kBtnMinus;
     int homebtn = input_data.buttons & drc::InputData::kBtnHome;
     int tvbutton = input_data.buttons & drc::InputData::kBtnTV;
-    int pwrbutton = input_data.buttons & drc::InputData::kBtnPower;
+    //int pwrbutton = input_data.buttons & drc::InputData::kBtnPower;
+    int pwrbutton = input_data.power_status & drc::InputData::kPowerButtonPressed;
     // A = enter  B = backspace  X = space  Y = Tab  TV = resyncstream  Select = Copy  Start = Paste  Lhat = Larrow  Rhat = Rarrow  Home = Escape
     // emulate mouse clicks with trigger buttons
     if (!drcJoystickMode) {
@@ -615,6 +616,7 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
     prev_startbtn = startbtn;
     prev_homebtn = homebtn;
     prev_buttons = input_data.buttons;
+    prev_power_status = input_data.power_status;
   }
 
   // Handle touchscreen press

@@ -109,8 +109,10 @@ rm -d ./external_pkg_build_dir
 #####git clone https://github.com/ITikhonov/netboot.git
 
 cd ./drc-hostap/netboot
+rm ./netboot
 gcc -o netboot netboot.c
-chown -R $USERNAME:$USERNAME ./*
+
+chown $USERNAME:$USERNAME ./netboot
 cd ../..
 
 cd ./drc-hostap/hostapd
@@ -122,9 +124,11 @@ sed -i "s?/_123sedreplaceme?${script_dir}?g" ./.config
 make clean
 make -j`nproc`
 
-chown -R $USERNAME:$USERNAME ./*
-
 cd ../..
+
+chown -R $USERNAME:$USERNAME ./drc-hostap/hostapd/*
+
+
 
 
 
@@ -160,9 +164,11 @@ sed -i "s?/_123sedreplaceme?${script_dir}?g" ./.config
 make clean
 make -j`nproc`
 
-chown -R $USERNAME:$USERNAME ./*
-
 cd ../..
+
+chown -R $USERNAME:$USERNAME ./drc-hostap/wpa_supplicant/*
+
+
 
 #apt --fix-broken install
 
@@ -188,10 +194,12 @@ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH ./configure --disable-
 make -j`nproc`
 make install -j`nproc`
 
-chown -R $USERNAME:$USERNAME ./*
-chown -R $USERNAME:$USERNAME ./src/*
-
 cd ../..
+
+chown -R $USERNAME:$USERNAME ./libdrc-vnc/libdrc-thefloppydriver/*
+chown -R $USERNAME:$USERNAME ./libdrc-vnc/libdrc-thefloppydriver/src/*
+
+
 
 
 

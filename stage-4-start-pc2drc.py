@@ -6,6 +6,7 @@ import pexpect
 user_id = int(subprocess.check_output(['id', '-u']))
 user_dir = os.path.expanduser("~")
 username = os.environ['USERNAME']
+current_working_directory = os.getcwd()
 
 default_run_command = "sudo -E python3 ./stage-4-start-pc2drc.py"
 patched_kernel_version = "5.11.22"
@@ -14,9 +15,19 @@ if user_id != 0:
     print("Please run with: %s" % default_run_command)
     sys.exit("Error: Script must be run as root.")
 
-if os.path.dirname(user_dir) != '/home':
+if user_dir != '/home/'+username:
     print("Please run with: %s" % default_run_command)
-    sys.exit("Error: Parent directory of user directory is not /home")
+    sys.exit("Error: User directory is not /home/"+username) 
+    
+if os.path.basename(current_working_directory) != 'pc2drc':
+    if os.path.isdir(current_working_directory+'/libdrc-vnc'):
+        print("Warning: Parent folder should be named pc2drc, continuing")
+    else:
+        print("This script expects to be in the pc2drc folder. Abort.")
+        sys.exit("Error: script is not where it should be.")
+        
+
+    
     
 def init_wpa_supplicant(config_file, wifi_interface):
         while True:
@@ -83,7 +94,6 @@ def choose_wifi_interface(prompt_str):
 
 wifi_interface = choose_wifi_interface("Which wireless interface would you like to use to stream to the WiiU Gamepad?")
 
-
 if os.path.exists("/sys/class/net/"+wifi_interface+"/tsf") != True:
     print("TSF kernel patch not loaded.")
     if subprocess.check_output(['uname', '-r']).decode('utf-8') != patched_kernel_version:
@@ -98,6 +108,7 @@ if os.path.exists("/sys/class/net/"+wifi_interface+"/tsf") != True:
     sys.exit(0)
     
 #else:
+
 
 
 #iw_reg_set_us_output = pexpect.spawn('iw reg set US')
@@ -141,77 +152,17 @@ while True:
 
 
 
-iw_reg_set_us_output = pexpect.spawn('iw reg set US')
-iw_reg_set_us_output.expect(pexpect.EOF)
-time.sleep(1)
-
-wpa_suppy = init_wpa_supplicant('./drc-hostap/conf/wpa_supplicant_normal.conf', wifi_interface)
-
-subprocess.check_call(['ip', 'link', 'set', 'dev', wifi_interface, 'down'])
-
-time.sleep(1)
-
-hostapd_output = pexpect.spawn('./drc-hostap/hostapd/hostapd -dd ./drc-hostap/conf/generated_ap_normal.conf')
-
-time.sleep(1)
-
-subprocess.check_call(['ip', 'a', 'a', '192.168.1.10/24', 'dev', 'WiiUAP'])
-subprocess.check_call(['ip', 'l', 'set', 'mtu', '1756', 'dev', 'WiiUAP'])
-
-time.sleep(1)
-
-print("Waiting for gamepad...")
-print("(please turn on the WiiU Gamepad)")
-hostapd_output.expect(' WPA: pairwise key handshake completed \(RSN\)', timeout=None)
-    
-#pre_bssid = hostapd_output.before.decode('utf-8')
-#wii_u_gamepad_bssid = pre_bssid[-17:]
-
-wii_u_gamepad_bssid = hostapd_output.before.decode()[-17:]
-
-##hostapd_output.kill(0)
-
-print("Pairing Successful!")
-print("WiiU Gamepad BSSID: "+wii_u_gamepad_bssid)
-
-#file = open('./drc-hostap/conf/generated_netboot_info.conf', 'w')
-#file.write(wii_u_gamepad_bssid)
-#file.close()
-#
-#if os.path.exists('./drc-hostap/conf/generated_netboot_info.conf'):
-#    print("Configuration saved successfully.")
-#else:
-#    print("Error: Unable to write configuration. Please restart the program.")
-#    input("(press enter to quit)")
-#    sys.exit(0)
-#
-#
-#subprocess.check_call(['chown', '-R', username+':'+username, './drc-hostap/conf/generated_netboot_info.conf'])
-
-
-netboot_output = pexpect.spawn('./drc-hostap/netboot/netboot 192.168.1.255 192.168.1.10 192.168.1.11 '+wii_u_gamepad_bssid)
-netboot_output.expect("request 3 from ")
-netboot_output.expect("matched")
-
-#hostapd_output.kill(0)
-##wpa_supplicant_output.kill(0)
-print("WiiU Gamepad Paired and configured successfully!")
-#input("(press enter to quit)")
-
-
-
-#pair_with_gamepad(wifi_interface)
-
-subprocess.check_call(['chmod', '777', '/dev/uinput']) #make sure that drcvncclient can write to this
 
 
 print("Starting VNC server...")
 subprocess.check_call(['tigervncserver', '--kill', ':1']) 
 
 time.sleep(0.5)
-os.system("sudo runuser -u thefloppydriver -- /bin/bash -c \"echo -e '1234\\n1234\\nn' | vncpasswd\"")
+os.system("sudo runuser -u thefloppydriver -- /bin/bash -c \"echo -e '12345678\\n12345678\\nn' | vncpasswd\"") #unnecessary
 subprocess.check_call(['chmod', '0664', user_dir+'/.vnc/passwd'])
-os.system("sudo runuser -u thefloppydriver -- tigervncserver :1 -passwd "+user_dir+"/.vnc/passwd -depth 24 -geometry 640x480 -localhost yes")
+#os.system("sudo runuser -u thefloppydriver -- tigervncserver :1 -passwd "+user_dir+"/.vnc/passwd -depth 24 -geometry 640x480 -localhost yes")
+os.system("sudo runuser -u thefloppydriver -- tigervncserver :1 -SecurityTypes None -depth 24 -geometry 640x480 -localhost yes -xstartup "+current_working_directory+"/libdrc-vnc/vncconfig-files/Xvnc-session-gnome")
+
 
 #try:
 #    vncserver.expect(pexpect.EOF, timeout=30)
@@ -229,7 +180,10 @@ time.sleep(1) #???
 
 
 
-vncviewer = pexpect.spawn("xtigervncviewer -SecurityTypes VncAuth -passwd "+user_dir+"/.vnc/passwd :1 -DesktopSize=854x480")
+#vncviewer = pexpect.spawn("xtigervncviewer -SecurityTypes VncAuth -passwd "+user_dir+"/.vnc/passwd :1 -DesktopSize=854x480")
+
+# This is an awful, awful thing to do, but it's the only reasonable way to get the desktop to resize to this resolution. why me. -thefloppydriver
+vncviewer = pexpect.spawn("xtigervncviewer -SecurityTypes None :1 -DesktopSize=854x480")
 
 try:
     vncviewer.expect(" Connected to host", timeout=10)
@@ -242,10 +196,112 @@ except:
     sys.exit(0)
     
 time.sleep(0.25)
-vncviewer.kill(0)
+vncviewer.kill(0) #this likes to misbehave, hence the following line.
 subprocess.check_call(['killall', 'xtigervncviewer'])
 #subprocess.check_call(['tigervncserver', '--kill', ':1'])
 time.sleep(0.5)
+
+
+
+
+
+#print("Waiting for gamepad...")
+#print("(please turn on the WiiU Gamepad)")
+#hostapd_output.expect(' WPA: pairwise key handshake completed \(RSN\)', timeout=None)
+#wii_u_gamepad_bssid = hostapd_output.before.decode()[-17:]
+#print("Pairing Successful!")
+#print("WiiU Gamepad BSSID: "+wii_u_gamepad_bssid)
+
+
+
+if os.path.exists('./drc-hostap/conf/generated_netboot_info.conf'):
+    file = open('./drc-hostap/conf/generated_netboot_info.conf', 'r')
+    wii_u_gamepad_bssid = file.read(17) #because the bssid is only 17 chars
+    file.close()
+else:
+    print("Gamepad configuration not found. Please run stage-3.")
+    input("(press enter to quit)")
+    sys.exit(0)
+
+
+try:
+    subprocess.check_call(['killall', 'hostapd']) #TODO: make this less extreme
+except subprocess.CalledProcessError:
+    pass
+
+iw_reg_set_us_output = pexpect.spawn('iw reg set US')
+iw_reg_set_us_output.expect(pexpect.EOF)
+time.sleep(1)
+
+subprocess.check_call(['ip', 'link', 'set', 'dev', wifi_interface, 'up'])
+
+time.sleep(1)
+
+print("Initializing wpa_supplicant...")
+wpa_suppy = init_wpa_supplicant('./drc-hostap/conf/wpa_supplicant_normal.conf', wifi_interface)
+
+time.sleep(1)
+
+subprocess.check_call(['ip', 'link', 'set', 'dev', wifi_interface, 'down'])
+
+time.sleep(1)
+
+#hostapd_output = pexpect.spawn('./drc-hostap/hostapd/hostapd -dd ./drc-hostap/conf/generated_ap_normal.conf')
+subprocess.check_call(['./drc-hostap/hostapd/hostapd', '-B', './drc-hostap/conf/generated_ap_normal.conf'])
+
+time.sleep(1)
+
+subprocess.check_call(['ip', 'a', 'a', '192.168.1.10/24', 'dev', 'WiiUAP'])
+subprocess.check_call(['ip', 'l', 'set', 'mtu', '1756', 'dev', 'WiiUAP'])
+
+time.sleep(1)
+
+print("Waiting for gamepad...")
+print("(please turn on the WiiU Gamepad)")
+
+keep_quitting=False
+
+while True:
+    netboot_output = pexpect.spawn('./drc-hostap/netboot/netboot 192.168.1.255 192.168.1.10 192.168.1.11 '+wii_u_gamepad_bssid)
+    try:
+        netboot_output.expect("request 1 from ", timeout=5)
+        print("Gamepad found! Connecting...")
+        try:
+            netboot_output.expect("request 3 from ", timeout=15)
+            print("Connected to gamepad!")
+            keep_quitting=True
+            break
+        except pexpect.exceptions.TIMEOUT:
+            print("Couldn't connect to gamepad, retrying...")
+            
+        if keep_quitting:
+            break
+    except pexpect.exceptions.TIMEOUT:
+        print("Didn't find gamepad, retrying...")
+    
+
+
+        
+
+        
+
+#netboot_output.expect("matched")
+#print("matched...")
+time.sleep(0.5)
+
+print("WiiU Gamepad booted successfully!")
+
+print("Starting drcvncclient!")
+
+
+
+
+#pair_with_gamepad(wifi_interface)
+
+subprocess.check_call(['chmod', '777', '/dev/uinput']) #make sure that drcvncclient can write to this
+
+
+
 
 #print("start drcvncclient manually now.")
 #time.sleep(1000)
@@ -257,8 +313,8 @@ time.sleep(0.5)
 
 #os.system("/bin/bash -c \"./libdrc-vnc/drcvncclient/src/drcvncclient -joystick :1 >/dev/null <<EOFwhyisthisathing\nEOF\n\"")
 
-print("Password is: 1234")
-os.system("./libdrc-vnc/drcvncclient/src/drcvncclient -joystick :1")
+#print("Password is: 12345678")
+os.system("./libdrc-vnc/drcvncclient/src/drcvncclient :1") #-joystick :1")
 
 #whyisthisathing
 

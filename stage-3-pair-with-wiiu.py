@@ -6,6 +6,7 @@ import pexpect
 user_id = int(subprocess.check_output(['id', '-u']))
 user_dir = os.path.expanduser("~")
 username = os.environ['USERNAME']
+current_working_directory = os.getcwd()
 
 default_run_command = "sudo -E python3 ./stage-3-pair-with-wiiu.py"
 
@@ -13,10 +14,20 @@ if user_id != 0:
     print("Please run with: %s" % default_run_command)
     sys.exit("Error: Script must be run as root.")
 
-if os.path.dirname(user_dir) != '/home':
+#if os.path.dirname(user_dir) != '/home':
+#    print("Please run with: %s" % default_run_command)
+#    sys.exit("Error: Parent directory of user directory is not /home")
+
+if user_dir != '/home/'+username:
     print("Please run with: %s" % default_run_command)
-    sys.exit("Error: Parent directory of user directory is not /home")
+    sys.exit("Error: User directory is not /home/"+username) 
     
+if os.path.basename(current_working_directory) != 'pc2drc':
+    if os.path.isdir(current_working_directory+'/drc-hostap'):
+        print("Warning: Parent folder should be named pc2drc, continuing")
+    else:
+        print("This script expects to be in the pc2drc folder. Abort.")
+        sys.exit("Error: script is not where it should be.")
 
 def choose_wifi_interface(prompt_str):
 
@@ -112,7 +123,7 @@ def pair_with_wii_u():
     
     subprocess.check_call(['chown', '-R', username+':'+username, './drc-hostap/wpa_supplicant/get_psk.conf'])
     
-    input("Turn on your WiiU, wait 15-20 seconds, press the red sync button on the faceplate, wait ~3 seconds, press the red sync button again, then press enter to continue.")
+    input("Turn on your WiiU, wait 15-20 seconds, press the red sync button on the faceplate, wait ~5 seconds, press the red sync button again, then press enter to continue.")
     
     def get_wps_pairing_code():
         print("There should be 4 symbols displayed from the WiiU. Each one of those corrosponds to a number.")
@@ -151,55 +162,95 @@ def pair_with_wii_u():
     
     while True:
     
-        #wpa_cli_output = subprocess.Popen(['./drc-hostap/wpa_supplicant/wpa_cli', '-p/var/run/wpa_supplicant_drc'], stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+        ##wpa_cli_output = subprocess.Popen(['./drc-hostap/wpa_supplicant/wpa_cli', '-p/var/run/wpa_supplicant_drc'], stdin = subprocess.PIPE, stdout = subprocess.PIPE)
         print("Initializing scan...")
-        wpa_cli_output = pexpect.spawn('./drc-hostap/wpa_supplicant/wpa_cli -p/var/run/wpa_supplicant_drc')
-        wpa_cli_output.expect('Interactive mode\r\n\r\n> ')
-        while True:
-            wpa_cli_output.sendline('scan')
-            busy_status = wpa_cli_output.expect(['OK', 'FAIL-BUSY'])
-            if busy_status == 0:
-                break
-            elif busy_status == 1:
-                print("Device busy, trying again in 3 seconds...")
-                time.sleep(3)
-            else:
-                print("Warning (Important): WHEEEEEEEEEEEEEEEEE")
+        #wpa_cli_output = pexpect.spawn('./drc-hostap/wpa_supplicant/wpa_cli -p/var/run/wpa_supplicant_drc')
+        #wpa_cli_output.expect('Interactive mode\r\n\r\n> ')
+        #while True:
+        #    wpa_cli_output.sendline('scan')
+        #    busy_status = wpa_cli_output.expect(['OK', 'FAIL-BUSY'])
+        #    if busy_status == 0:
+        #        break
+        #    elif busy_status == 1:
+        #        print("Device busy, trying again in 3 seconds...")
+        #        time.sleep(3)
+        #    else:
+        #        print("Warning (Important): WHEEEEEEEEEEEEEEEEE")
         
+        iw_scan = pexpect.spawn('/bin/bash -c "iw dev '+wifi_interface+' scan | grep -Eo \'WiiU[0-9a-f]{23}_STA1\'"')
         print("Scanning... (please be patient)")
-        wpa_cli_output.expect('<3>CTRL-EVENT-SCAN-RESULTS')
-        time.sleep(0.5)
-        wpa_cli_output.sendline('scan_results')
-        wpa_cli_output.expect('> bssid / frequency / signal level / flags / ssid')
-        print("Scan complete! Fetching results...")
-        wpa_cli_output.expect('\r\n> ')
-        scan_results = wpa_cli_output.before.decode('utf-8')
-        scan_results_lines = scan_results.splitlines()
-        
-        wii_u_line = ""
-        
-        for line in scan_results_lines:
-            if re.search("\w*	\[ESS\]	WiiU\w{23}_STA1\w*", line) != None:
-                wii_u_line = line
-                break
+        iw_scan.expect(pexpect.EOF, timeout=None)
+        wii_u_line = iw_scan.before.decode('utf-8')
         
         #DEBUG (INFO): print(wii_u_line)
         
         if wii_u_line == "":
             input("WiiU not found or not in Gamepad pairing mode. Press the red sync button on the WiiU faceplate and press enter to try again.")
-            wpa_cli_output.kill(0)
-            time.sleep(2)
+            #wpa_cli_output.kill(0)
+            #time.sleep(2)
         else:
-            break
-            
+            if "WiiU" in wii_u_line:
+                break
+            else:
+                print("There was an error while trying to scan for the WiiU. Try to run iw.")
+                input("(press enter to quit)")
+                sys.exit(0)
         
+        
+        #wpa_cli_output.expect('<3>CTRL-EVENT-SCAN-RESULTS')
+        #time.sleep(0.5)
+        #wpa_cli_output.sendline('scan_results')
+        #wpa_cli_output.expect('> bssid / frequency / signal level / flags / ssid')
+        #print("Scan complete! Fetching results...")
+        #wpa_cli_output.expect('\r\n> ')
+        #scan_results = wpa_cli_output.before.decode('utf-8')
+        #scan_results_lines = scan_results.splitlines()
+        #
+        #wii_u_line = ""
+        #
+        #for line in scan_results_lines:
+        #    if re.search("\w*	\[ESS\]	WiiU\w{23}_STA1\w*", line) != None:
+        #        wii_u_line = line
+        #        break
+        #
+        ##DEBUG (INFO): print(wii_u_line)
+        #
+        #if wii_u_line == "":
+        #    input("WiiU not found or not in Gamepad pairing mode. Press the red sync button on the WiiU faceplate and press enter to try again.")
+        #    wpa_cli_output.kill(0)
+        #    time.sleep(2)
+        #else:
+        #    break
     
     
-    wii_u_bssid = wii_u_line[:17]
+    #wii_u_bssid = wii_u_line[:17]
+    
+    wii_u_mac = wii_u_line[15:27] #WiiUaabbccddeefaabbccddeeff_STA1 -> aabbccddeeff = mac address
+    
+    wii_u_char_list = []
+    
+    for index in range(len(wii_u_mac)):
+        wii_u_char_list.append(wii_u_mac[index])
+        if not (index + 1) % 2:
+            wii_u_char_list.append(':')
+    wii_u_char_list.pop() #above function adds extra : to the end of the list.
+    
+    wii_u_bssid = ''.join(wii_u_char_list)
+        
     
     print("WiiU Found!")
     
     print("WiiU BSSID: %s" % wii_u_bssid)
+    
+    wpa_cli_output = pexpect.spawn('./drc-hostap/wpa_supplicant/wpa_cli -p/var/run/wpa_supplicant_drc')
+    
+    try:
+       wpa_cli_output.expect('Interactive mode\r\n\r\n> ', timeout=15)
+    except:
+       print("Fatal error: Could not start wpa_cli.")
+       input("(press enter to quit)")
+       sys.exit(0)
+       
     
     while True:
         print("Pairing... (please be patient)")
@@ -209,6 +260,18 @@ def pair_with_wii_u():
             wpa_cli_output.expect("WPS-CRED-RECEIVED", timeout=10)
             try:
                 wpa_cli_output.expect("WPS-SUCCESS", timeout=10)
+                time.sleep(1)
+                file = open("./drc-hostap/wpa_supplicant/get_psk.conf", 'r')
+                get_psk_file = file.read()
+                wii_u_psk = re.findall("	psk=[a-z0-9]{64}", get_psk_file)[0][5:]
+                
+                
+                if wii_u_psk == None:
+                    print("For some reason the WiiU's PSK was not obtained successfully. Restart the program and try again or email thefloppydriver@gmail.com for help :)")
+                    input("(press enter to quit)")
+                    sys.exit(0)
+                    
+                print("WiiU PSK obtained successfully.")
                 print("Pairing Successful! Your WiiU console is not required for any later steps.")
                 input("(press enter to continue)")
                 break
@@ -232,17 +295,7 @@ def pair_with_wii_u():
     
     
     
-    file = open("./drc-hostap/wpa_supplicant/get_psk.conf", 'r')
-    get_psk_file = file.read()
-    wii_u_psk = re.findall("	psk=[a-z0-9]{64}", get_psk_file)[0][5:]
     
-    
-    if wii_u_psk == None:
-        print("For some reason the WiiU's PSK was not obtained successfully. Restart the program and try again or email thefloppydriver@gmail.com for help :)")
-        input("(press enter to quit)")
-        sys.exit(0)
-        
-    print("WiiU PSK obtained successfully.")
     #DEBUG (INFO): print("wii_u_psk= "+wii_u_psk)
     
     while True:
@@ -399,19 +452,18 @@ def pair_with_gamepad(wifi_interface):
         
         
 print("Type \"skip\" to skip Wii U pairing process. Press Enter to continue normally")
-choice = input("(type skip or press enter): ")
-
-if choice.lower() != '':
-    if choice.lower()[0] == 's':
-        wifi_interface = choose_wifi_interface("Which wireless interface would you like to use to pair with the WiiU Gamepad?")
-        subprocess.check_call(['service', 'network-manager', 'stop'])
-        pair_with_gamepad(wifi_interface)
+while True:
+    choice = input("(type skip or press enter): ")
+    if choice.lower() != '':
+        if choice.lower() == 'skip':
+            wifi_interface = choose_wifi_interface("Which wireless interface would you like to use to pair with the WiiU Gamepad?")
+            subprocess.check_call(['service', 'network-manager', 'stop'])
+            pair_with_gamepad(wifi_interface)
+        else:
+            print("Invalid choice.")
     else:
         wifi_interface = pair_with_wii_u()
         pair_with_gamepad(wifi_interface)
-else:
-    wifi_interface = pair_with_wii_u()
-    pair_with_gamepad(wifi_interface)
         
 
     

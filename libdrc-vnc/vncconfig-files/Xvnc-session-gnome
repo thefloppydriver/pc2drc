@@ -1,0 +1,22 @@
+#!/bin/sh
+test x"$SHELL" = x"" && SHELL=/bin/bash
+test x"$1"     = x"" && set -- default
+#vncconfig -iconic &
+"$SHELL" -l <<EOF
+export XDG_SESSION_TYPE=x11
+export XKL_XMODMAP_DISABLE=1
+xrandr --fb 854x480 #i hate gnome so much. why can't this just work :(
+dbus-launch --exit-with-session gnome-session
+
+
+#function get_serial() {
+#  serial="$(gdbus call --session --dest org.gnome.Mutter.DisplayConfig --object-path /org/gnome/Mutter/DisplayConfig --method org.gnome.Mutter.DisplayConfig.GetResources | awk '{print $2}' | tr -d ',')"
+#  echo $serial
+#}
+#
+#serial=$(get_serial)
+#gdbus call --session --dest org.gnome.Mutter.DisplayConfig --object-path /org/gnome/Mutter/DisplayConfig --method org.gnome.Mutter.DisplayConfig.ApplyMonitorsConfig $(get_serial) 1 "[(0, 0, 1, 0, true, [('VNC-0', '1280x720@60', [] )] )]" "[]"
+
+exec /etc/X11/Xsession "$@"
+EOF
+#vncserver -kill $DISPLAY
