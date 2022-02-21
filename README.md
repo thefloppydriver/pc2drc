@@ -23,7 +23,11 @@
   
   
  # (How to install) The WiFi adapter just came in, now what?
-  Open up the project folder
+  `cd /path/where/you/want/to/install/pc2drc`
+  
+  `git clone https://github.com/thefloppydriver/pc2drc/`
+ 
+  `cd pc2drc`
   
   Run the following commands in order and follow their instructions:
   
@@ -37,7 +41,7 @@
    
    `sudo -E python3 ./stage-4-start-pc2drc.py`
    
-  Once finished, simply run `sudo -E ./start-pc2drc.sh` to stream to your gamepad!
+  Once finished, simply run `sudo -E ./start-pc2drc.sh` anytime to stream to your gamepad!
    
    
  # Extra Instructions and tutorials:
@@ -49,13 +53,17 @@
  # TODO: (in order of importance)
    ~~todo: add todo~~
    
-   todo (bugfix): output WiiU gamepad inputs to /dev/uinput when not in mouse mode.
+   todo (feature): Add option to build kernel module with dkms instead of compiling entire kernel from source
+   
+   todo (QoL, stability): Install drc-x264 in external_pkg_install_dir (Maybe rename folder)
+   
+   todo (bugfix): output WiiU gamepad controls to /dev/uinput when not in mouse mode
    
    todo (info): Add mouse mode and button bindings to the readme
    
    todo (QoL, stability): Upgrade wpa_supplicant and hostapd and remodify them for WiiU support (Hard? Probably?)
    
-   todo (QoL, stability): find better way to resize the tigervnc-server that doesn't involve connecting with xtigervncclient (stuff goes here) -DesktopSize 864x480
+   todo (QoL, stability): find better way to resize the tigervnc-server that doesn't involve connecting with xtigervncclient (stuff goes here) -DesktopSize 854x480
    
    todo (feature): remove necessity for WiiU during pairing ~~(seemingly easy)~~ (Note: NOT EASY. NOT EASY. NOT EASY. NOT EASY.)
    
@@ -77,6 +85,8 @@
   (fix unknown) random disconnects
   
   (fix unknown) Visible artifacting on gamepad (x264 encoding bug, this is NOT a network related issue)
+  
+  (todo) drcvncclient/libdrc isn't outputting gamepad controls to /dev/uinput
    
  
  # Notes:
