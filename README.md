@@ -49,6 +49,8 @@
  # TODO: (in order of importance)
    ~~todo: add todo~~
    
+   todo (info): Add mouse mode and button bindings to the readme
+   
    todo (QoL, stability): Upgrade wpa_supplicant and hostapd and remodify them for WiiU support (Hard? Probably?)
    
    todo (QoL, stability): find better way to resize the tigervnc-server that doesn't involve connecting with xtigervncclient (stuff goes here) -DesktopSize 864x480

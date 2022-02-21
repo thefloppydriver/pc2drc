@@ -436,7 +436,7 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
   //      cursor to (0,0) as prev_x, prev_y are uninitialised.
 
   // New unique button event
-  if (input_data.buttons != prev_buttons || input_data.power_status != prev_power_status) {
+  if (input_data.buttons != prev_buttons) {
     int lbutton = input_data.buttons & (drc::InputData::kBtnZL | drc::InputData::kBtnZR);
     int rbutton = input_data.buttons & (drc::InputData::kBtnL | drc::InputData::kBtnR);
     int dhat = input_data.buttons & drc::InputData::kBtnDown;
@@ -451,10 +451,29 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
     int selectbtn = input_data.buttons & drc::InputData::kBtnMinus;
     int homebtn = input_data.buttons & drc::InputData::kBtnHome;
     int tvbutton = input_data.buttons & drc::InputData::kBtnTV;
-    //int pwrbutton = input_data.buttons & drc::InputData::kBtnPower;
-    int pwrbutton = input_data.power_status & drc::InputData::kPowerButtonPressed;
-    // A = enter  B = backspace  X = space  Y = Tab  TV = resyncstream  Select = Copy  Start = Paste  Lhat = Larrow  Rhat = Rarrow  Home = Escape
+    int pwrbutton = input_data.buttons & drc::InputData::kBtnPower;
+    // A = enter  B = backspace  X = space  Y = Tab  TV = mode switch  Select = Copy  Start = Paste  Lhat = Larrow  Rhat = Rarrow  Home = Escape
     // emulate mouse clicks with trigger buttons
+    if(tvbutton  != prev_tvbutton) {
+      if (tvbutton) {
+        drcJoystickMode = !drcJoystickMode;
+        if (!drcJoystickMode) {
+          printf("Mouse button mode\n");
+          //g_streamer->PauseSystemInputFeeder();
+        } else {
+          printf("Joystick mode\n");
+          //g_streamer->ResumeSystemInputFeeder();
+        }
+      }
+    }
+    
+    /*if(tvbutton != prev_tvbutton) {
+      if (tvbutton) {
+        g_streamer->ResyncStreamer();
+        printf("Stream Resynced!\n");
+      }
+    }*/
+       
     if (!drcJoystickMode) {
       if(lbutton != prev_lbutton) {
         if (lbutton)
@@ -556,6 +575,7 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
           SendKeyEvent(cl, 65507, FALSE); // 65507 == Ctrl
         }      
       }
+      
       if(selectbtn != prev_selectbtn) {
         if (selectbtn) {
           SendKeyEvent(cl, 65507, TRUE); // 65507 == Ctrl
@@ -565,7 +585,7 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
           SendKeyEvent(cl, 99, FALSE); // 99 == c
           SendKeyEvent(cl, 65507, FALSE); // 65507 == Ctrl
         }      
-      }
+      
       if(homebtn != prev_homebtn) {
         if (homebtn) {
           SendKeyEvent(cl, 65307, TRUE); // 65307 == Escape
@@ -576,28 +596,13 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
       }
     }
 
-    // if input feeder mode is on, push tv button to toggle between
+    // if input feeder mode is on, push TV button to toggle between
     // full joystick mode (all buttons go to input feeder) or
     // mouse only mode, where trigger buttons are mouse clicks
     if (drcInputFeeder) {
-      if(tvbutton  != prev_tvbutton) {
-        if (tvbutton) {
-          drcJoystickMode = !drcJoystickMode;
-          if (!drcJoystickMode) {
-            printf("Mouse button mode\n");
-            //g_streamer->PauseSystemInputFeeder();
-          } else {
-            printf("Joystick mode\n");
-            //g_streamer->ResumeSystemInputFeeder();
-          }
-        }
-      }
-      /*if(tvbutton != prev_tvbutton) {
-        if (tvbutton) {
-          g_streamer->ResyncStreamer();
-          printf("Stream Resynced!\n");
-        }
-      }*/
+    }
+    
+    
     }
 
     prev_lbutton = lbutton;
@@ -616,7 +621,6 @@ void Process_DRC_Input(rfbClient *cl, drc::InputData& input_data) {
     prev_startbtn = startbtn;
     prev_homebtn = homebtn;
     prev_buttons = input_data.buttons;
-    prev_power_status = input_data.power_status;
   }
 
   // Handle touchscreen press
