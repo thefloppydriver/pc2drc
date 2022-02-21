@@ -19,7 +19,7 @@
   
   
  # Dependencies (included or installed automatically)
-  Openssl 1.0.1, libnl-3, libnl-genl-3, wpa_supplicant, hostapd, ffmpeg, libx264, libvncserver, libvnc, drcvncclient
+  Openssl 1.0.1, libnl-3, libnl-genl-3, tigervnc, wpa_supplicant, hostapd, ffmpeg, libx264, libvncserver, libdrc, drcvncclient
   
   
  # (How to install) The WiFi adapter just came in, now what?
