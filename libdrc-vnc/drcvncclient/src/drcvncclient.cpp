@@ -380,7 +380,7 @@ void Init_DRC() {
     puts("Unable to start streamer");
     exit(1);
   }
-
+  g_streamer->SetFrameRate(drc::VideoFrameRate::k59_94Hz);
   //g_streamer->SetTSArea(864, 480);
 }
 

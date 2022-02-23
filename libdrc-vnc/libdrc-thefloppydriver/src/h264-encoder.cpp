@@ -37,7 +37,7 @@ extern "C" {
 namespace drc {
 
 namespace {
-const char* const kEncoderQuality = "slow";
+const char* const kEncoderQuality = "ultrafast"; //"slow";
 
 // Enable intra prediction to flush decoding errors away. In practice we
 // shouldn't need this (the DRC will send libdrc a message when a frame fails
@@ -160,7 +160,7 @@ void H264Encoder::CreateEncoder() {
   param.b_intra_refresh = kEnableIntraRefresh;
   param.analyse.i_weighted_pred = 0;
   param.analyse.b_weighted_bipred = 0;
-  param.analyse.b_transform_8x8 = 0;
+  param.analyse.b_transform_8x8 = 0; //maybe change this to 1..?
   param.analyse.i_chroma_qp_offset = 0;
 
   // Set QP = 32 for all frames.

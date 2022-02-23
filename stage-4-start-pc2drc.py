@@ -119,6 +119,41 @@ if os.path.exists("/sys/class/net/"+wifi_interface+"/tsf") != True:
 
 subprocess.check_call(['service', 'network-manager', 'stop'])
 
+#TESTING
+#TODO: test rtnetlink directly instead of testing with ip link set dev wifi_interface up
+#TODO: check if wpa_supplicant and hostapd are alive before doing this test
+try:
+    #TODO: test rtnetlink directly instead of using this
+    subprocess.check_call(['ip', 'link', 'set', 'dev', wifi_interface, 'up'])
+except subprocess.CalledProcessError:
+    print("Wireless interface is being used, killing wpa_supplicant...")
+    try:
+        subprocess.check_call(['killall', 'wpa_supplicant'])
+    except subprocess.CalledProcessError:
+        print("wpa_supplicant was not alive...")
+
+try:
+    #TODO: test rtnetlink directly instead of using this
+    subprocess.check_call(['ip', 'link', 'set', 'dev', wifi_interface, 'up'])
+except subprocess.CalledProcessError:
+    print("Wireless interface is being used, killing hostapd...")
+    try:
+        subprocess.check_call(['killall', 'hostapd'])
+    except subprocess.CalledProcessError:
+        print("hostapd was not alive...")
+        
+try:
+    #TODO: test rtnetlink directly instead of using this
+    subprocess.check_call(['ip', 'link', 'set', 'dev', wifi_interface, 'up'])
+except subprocess.CalledProcessError:
+    print("Wireless interface is STILL being used.")
+    print("Could not get a lock on wifi interface ("+wifi_interface+")")
+    print("Please stop anything that could be using the interface and try again.")
+    input("(press enter to quit)")
+#END TESTING
+
+
+
 #def pair_with_gamepad(wifi_interface):
 while True:
     ip_link_output = subprocess.check_output(['ip', 'link', 'show']).decode("utf-8")
@@ -156,14 +191,23 @@ while True:
 
 
 print("Starting VNC server...")
-subprocess.check_call(['tigervncserver', '--kill', ':1']) 
+#subprocess.check_call(['tigervncserver', '--kill', ':1']) 
 
 time.sleep(0.5)
-os.system("sudo runuser -u thefloppydriver -- /bin/bash -c \"echo -e '12345678\\n12345678\\nn' | vncpasswd\"") #unnecessary
-subprocess.check_call(['chmod', '0664', user_dir+'/.vnc/passwd'])
+#os.system("sudo runuser -u thefloppydriver -- /bin/bash -c \"echo -e '12345678\\n12345678\\nn' | vncpasswd\"") #unnecessary
+#subprocess.check_call(['chmod', '0664', user_dir+'/.vnc/passwd'])
 #os.system("sudo runuser -u thefloppydriver -- tigervncserver :1 -passwd "+user_dir+"/.vnc/passwd -depth 24 -geometry 640x480 -localhost yes")
-os.system("sudo runuser -u thefloppydriver -- tigervncserver :1 -SecurityTypes None -depth 24 -geometry 640x480 -localhost yes -xstartup "+current_working_directory+"/libdrc-vnc/vncconfig-files/Xvnc-session-gnome")
-
+try:
+    os.system("sudo runuser -u thefloppydriver -- tigervncserver :1 -useold -FrameRate 59.94 -SecurityTypes None -depth 24 -geometry 640x480 -localhost yes -xstartup "+current_working_directory+"/libdrc-vnc/vncconfig-files/Xvnc-session-gnome")
+except:
+    print("Failed to start tigervncserver, killing and trying again.")
+    subprocess.check_call(['tigervncserver', '--kill', ':1'])
+    try:
+        os.system("sudo runuser -u thefloppydriver -- tigervncserver :1 -useold -FrameRate 59.94 -SecurityTypes None -depth 24 -geometry 640x480 -localhost yes -xstartup "+current_working_directory+"/libdrc-vnc/vncconfig-files/Xvnc-session-gnome")
+    except:
+        print("Could not start tigervncserver.")
+        input("(press enter to quit)")
+        sys.exit(0)
 
 #try:
 #    vncserver.expect(pexpect.EOF, timeout=30)
