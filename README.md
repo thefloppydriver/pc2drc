@@ -53,6 +53,8 @@
  # TODO: (in order of importance)
    ~~todo: add todo~~
    
+   todo (reminder): compare h264 output of drc-cap to dump.h264 from h264-encoder.cpp (libdrc-thefloppydriver)
+   
    todo (feature): Add option to build kernel module with dkms instead of compiling entire kernel from source
    
    todo (QoL, stability): Install drc-x264 in external_pkg_install_dir (Maybe rename folder)
