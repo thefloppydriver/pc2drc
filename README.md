@@ -77,6 +77,10 @@
 
    todo (bugfix): fix major x264 encoder issues
    
+   todo (feature): Add Raspberry Pi 4 support
+   
+   todo (feature): Add Cemu integration
+   
    todo (wishful thinking): add audio support
    
  
