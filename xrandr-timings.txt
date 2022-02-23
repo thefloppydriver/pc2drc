@@ -1,8 +1,0 @@
-854x480@59.97~ = 37.277 854 940 988 1104 480 508 509 563 -hsync +vsync
-
-#xrandr --newmode "854x480_59.97" 37.277 854 940 988 1104 480 508 509 563 -hsync +vsync
-xrandr --newmode "854x480_60" 24.595 854 0 0 854 480 0 0 480
-xrandr --addmode VNC-0 "854x480_59.97"
-xrandr -s 854x480_59.97
-
-sudo runuser -u thefloppydriver -- tigervncserver :1 -xstartup ~/.vnc/xstartup -SecurityTypes None -localhost yes -geometry 640x480 -fg
