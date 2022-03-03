@@ -28,26 +28,46 @@ apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc 
 #mkdir kernel-patch-files #todo, add gitignore linux-5.11.22.tar.xz and linux-5.11.22
 cd kernel-patch-files 
 
-wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.11.22.tar.xz
-tar xvf linux-5.11.22.tar.xz
+if [[ -f "./linux-5.11.22.tar.xz" ]]; then
+    echo "Kernel already downloaded, skipping download."
+else
+    wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.11.22.tar.xz
+fi
 
+if [[ -d "./linux-5.11.22" ]]; then
+    echo "Kernel already decompressed, skipping extraction."
+else
+    tar xvf linux-5.11.22.tar.xz
+fi
 
 cp -v /boot/config-$(uname -r) ./linux-5.11.22/.config
 
+
 cd ./linux-5.11.22/net/mac80211
-patch -p1 < ../../../mac80211.patch #add sudo if this doesn't work
+
+if [[ -f "./README.DRC" ]]; then
+    echo "Kernel sources already patched, skipping patch."
+else
+    patch -p1 < ../../../mac80211.patch #add sudo if this doesn't work
+fi
+
 cd -
 
-sed -i 's/CONFIG_SYSTEM_TRUSTED_KEYS/#CONFIG_SYSTEM_TRUSTED_KEYS/g' ./linux-5.11.22/.config
+
+sed -i 's/[#]*CONFIG_SYSTEM_TRUSTED_KEYS/#CONFIG_SYSTEM_TRUSTED_KEYS/g' ./linux-5.11.22/.config #the [#]* is there to match any # characters just in case we already ran this script.
+
 
 cd linux-5.11.22
 
 echo "This could take 1 to 2 hours depending on your system configuration"
 read -n 1 -p "(press enter to recompile the linux kernel)"
 
-make oldconfig -j`nproc` #this *will* take a while. 
+make olddefconfig -j`nproc` #this *will* take a while. 
+
+make -j`nproc` #Issue #1
 
 make modules_install -j`nproc`
+
 make install -j`nproc`
 
 cp /etc/default/grub /etc/default/grub.backupfilebaybee
