@@ -25,6 +25,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. Ubuntu 20.04 LTS]
+ - Kernel Version: [Type 'uname -r' in a terminal]
  - System Architecture  [e.g. x86_64, ARM]
 
 **Additional context**
