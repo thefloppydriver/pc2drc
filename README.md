@@ -53,6 +53,8 @@
  # TODO: (in order of importance)
    ~~todo: add todo~~
    
+   todo (feature, IN-PROGRESS): do mac80211 patch through DKMS using FlorianFranzen's drc-mac80211 repository (Previously known as FloFra. God he was hard to find. To anyone reading this please do not ever rename your account.)
+   
    todo (reminder): compare h264 output of drc-cap to dump.h264 from h264-encoder.cpp (libdrc-thefloppydriver)
    
    todo (feature): Add option to build kernel module with dkms instead of compiling entire kernel from source
@@ -74,8 +76,6 @@
    todo (feature): Port to openssl 1.1
    
    todo (feature): Port to openssl 3.0
-   
-   todo (feature): do mac80211 patch through DKMS using FlorianFranzen's drc-mac80211 repository (Previously known as FloFra. God he was hard to find. To anyone reading this please do not ever rename your account.)
 
    todo (bugfix): fix major x264 encoder issues
    
