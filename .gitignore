@@ -1,6 +1,7 @@
 /external_pkg_install_dir
 /external_pkg_build_dir
 kernel-patch-files/linux-*
+kernel-patch-files/mac80211*
 libdrc-vnc/drcvncclient/config.log
 libdrc-vnc/drcvncclient/config.status
 drc-hostap/wpa_supplicant/.config
@@ -15,3 +16,4 @@ drc-hostap/wpa_supplicant/get_psk.conf
 drc-hostap/wpa_supplicant/get_psk.conf
 xrandr-timings.txt
 stage-0-start-script.sh
+kernel-patch-files/kernel_above_5_11_mac80211.patch.backup

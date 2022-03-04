@@ -11,9 +11,36 @@ if [ $(cd $HOME/.. && pwd) != "/home" ]; then
 fi
 
 if [ ! -f "/sys/class/net/$(ip link show | grep -o -m1 "\w*wl\w*")/tsf" ]; then
+    echo 'TSF kernel patch not loaded.'
+    #ASSUME MODULE IS IN /lib/modules/$(uname -r)/updates/dkms/mac80211.ko
+    
+    restore_modules=$(sudo rmmod mac80211 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
+    
+    while true
+    do
+      extra_modules=$(sudo rmmod mac80211 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
+        output=$(sudo rmmod $extra_modules 2>&1)
+        if [[ $output =~ "by:" ]]; then
+            extra_modules_2=$(sudo rmmod $output 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
+        fi
+        if [[ $output =~ "missing module name" ]]; then
+            break
+        fi
+        sleep 1
+    done
+    
+    sudo cp -f /lib/modules/$(uname -r)/updates/dkms/mac80211.ko /lib/modules/$(uname -r)/mac80211.ko
+    
+    sudo insmod /lib/modules/$(uname -r)/updates/dkms/mac80211.ko
+    sudo modprobe $restore_modules
+    sudo modprobe rt2800usb
+fi
+
+
+if [ ! -f "/sys/class/net/$(ip link show | grep -o -m1 "\w*wl\w*")/tsf" ]; then
    echo 'TSF kernel patch not loaded.'
    if [ $(uname -r) != '5.11.22' ] ; then
-       echo "You're running an unpatched kernel."
+       echo "You're running an unpatched kernel OR something went wrong with EXPERIMENTAL-stage-1-kernel-patch.sh"
        echo "Please reboot to grub and choose Advanced options for Ubuntu > Ubuntu, with Linux 5.11.22   (It should be the selected by default)"
        read -n 1 -p "(press enter to quit)"
        exit
@@ -249,7 +276,9 @@ chown -R $USERNAME:$USERNAME ~/.vnc
 
 cd ./libdrc-vnc/drcvncclient
 
-make clean
+autoreconf -f -i
+
+make clean -j`nproc`
 
 x264_LIBS='-L/usr/local/lib -lx264 -L/usr/local/lib -lswscale' ./configure
 make -j`nproc`
@@ -257,9 +286,12 @@ make -j`nproc`
 cd ../..
 
 
-
-
-
+echo
+echo
+echo
+echo
+echo
+echo "All modules built successfully! Onto stage 3!"
 
 
 
