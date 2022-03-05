@@ -10,30 +10,59 @@ if [ $(cd $HOME/.. && pwd) != "/home" ]; then
     exit
 fi
 
+if [[ $(ip link show | grep -o -m1 "\w*wl\w*") == "" ]]; then
+    echo "No wireless interfaces found. Please attatch a wireless interface and try again."
+    exit
+fi
+
+unload_modules_recursively () {
+  local output=$(rmmod $@ 2>&1)
+  if [[ $output =~ "by:" ]]; then
+    unload_modules_recursively $(rmmod $output 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
+  fi
+  if [[ $output =~ "missing module name" ]]; then
+    return 69 #this doesn't matter, I should really check this but whatever
+  fi
+  sleep 1
+}
+
+
 if [ ! -f "/sys/class/net/$(ip link show | grep -o -m1 "\w*wl\w*")/tsf" ]; then
     echo 'TSF kernel patch not loaded.'
     #ASSUME MODULE IS IN /lib/modules/$(uname -r)/updates/dkms/mac80211.ko
     
-    restore_modules=$(sudo rmmod mac80211 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
+    restore_modules=$(rmmod mac80211 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
     
-    while true
-    do
-      extra_modules=$(sudo rmmod mac80211 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
-        output=$(sudo rmmod $extra_modules 2>&1)
-        if [[ $output =~ "by:" ]]; then
-            extra_modules_2=$(sudo rmmod $output 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
+    if [[ $(awk '{ print $1 }' /proc/modules | xargs modinfo -n | grep "mac80211") =~ "dkms/mac80211.ko" ]]; then
+        echo "Patched mac80211 module installed"
+    else
+        insmod /lib/modules/$(uname -r)/updates/dkms/mac80211.ko 2>&1 | grep -v "File exists"
+        if [[ $(awk '{ print $1 }' /proc/modules | xargs modinfo -n | grep "mac80211") =~ "dkms/mac80211.ko" ]]; then
+            echo "Patched mac80211 module installed"
+        else        
+            debug_file=./generated_bug_report.txt
+            echo "SCRIPT NAME: ${0}" > $debug_file
+            echo "START OF COMMAND awk '{ print $1 }' /proc/modules | xargs modinfo -n" >> $debug_file
+            awk '{ print $1 }' /proc/modules | xargs modinfo -n >> $debug_file
+            echo -e "\n\n\n\n\nSTART OF COMMAND modinfo iwlmvm | sed -n '/sig_id/q;p'" >> $debug_file
+            modinfo mac80211 | sed -n '/sig_id/q;p' >> $debug_file
+            
+            echo        
+            echo "FATAL ERROR: Could not load patched mac80211 module."
+            echo "thefloppydriver: I have no idea what just caused this to happen. Please send a detailed bug report if you get this message so that I can catch it properly!!"
+            echo "also attatch $(pwd)/generated_bug_report.txt to your bug report :)"
+            echo
+            read -n 1 -p "(press enter to quit)"
+            modprobe $restore_modules
+            exit
         fi
-        if [[ $output =~ "missing module name" ]]; then
-            break
-        fi
-        sleep 1
-    done
-    
-    sudo cp -f /lib/modules/$(uname -r)/updates/dkms/mac80211.ko /lib/modules/$(uname -r)/mac80211.ko
-    
-    sudo insmod /lib/modules/$(uname -r)/updates/dkms/mac80211.ko
-    sudo modprobe $restore_modules
-    sudo modprobe rt2800usb
+    fi
+
+    modprobe $restore_modules
+    unload_modules_recursively $restore_modules
+    unload_modules_recursively mac80211
+    modprobe mac80211
+    modprobe $restore_modules
 fi
 
 
@@ -210,18 +239,18 @@ chown -R $USERNAME:$USERNAME ./drc-hostap/wpa_supplicant/*
 #apt --fix-broken install
 
 
-#echo "TODO: COMPILE AND INSTALL MODIFIED FFMPEG AND DRC-X264"
+#echo "DEBUG: COMPILE AND INSTALL MODIFIED FFMPEG AND DRC-X264"
 
 cd ./drc-x264
 make clean
-./configure --prefix=/usr/local --enable-static --enable-pic # --enable-shared
+./configure --prefix=/usr/local --enable-static --enable-pic # --enable-shared   NOTE: NO. DO NOT ENABLE SHARED. SHARED LIBRARIES ARE THE DEVIL.
 make -j`nproc`
 make install -j`nproc`
 
 cd ..
 
 
-#echo "TODO: COMPILE AND INSTALL MODIFIED LIBDRC"
+#echo "DEBUG: COMPILE AND INSTALL MODIFIED LIBDRC"
 
 cd ./libdrc-vnc/libdrc-thefloppydriver
 
@@ -242,7 +271,7 @@ chown -R $USERNAME:$USERNAME ./libdrc-vnc/libdrc-thefloppydriver/src/*
 
 
 
-#echo "TODO: COMPILE AND INSTALL A VNC VIEWER"
+#echo "DEBUG: COMPILE AND INSTALL A VNC VIEWER"
 
 #tigervnc-standalone-server was (hopefully) already installed earlier in the script.
 
@@ -272,11 +301,11 @@ chown -R $USERNAME:$USERNAME ~/.vnc
 
 
 
-#echo "TODO: COMPILE AND INSTALL drcvncclient"
+#echo "DEBUG: COMPILE AND INSTALL drcvncclient"
 
 cd ./libdrc-vnc/drcvncclient
 
-autoreconf -f -i
+autoreconf -f -i #FIX FOR USERS CASE OF COMPILING FROM CLONED GIT. XXX NEEDS TESTING!
 
 make clean -j`nproc`
 

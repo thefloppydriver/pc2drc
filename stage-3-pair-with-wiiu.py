@@ -29,6 +29,7 @@ if os.path.basename(current_working_directory) != 'pc2drc':
         print("This script expects to be in the pc2drc folder. Abort.")
         sys.exit("Error: script is not where it should be.")
 
+
 def choose_wifi_interface(prompt_str):
 
     ip_link_output = subprocess.check_output(['ip', 'link', 'show']).decode("utf-8")
@@ -58,6 +59,10 @@ def choose_wifi_interface(prompt_str):
         else:
             input(choice + " is not a valid number. Press enter to try again.")
     
+    if os.path.exists("/sys/class/net/"+choice_wlan+"/tsf") != True:
+        print("FATAL ERROR: TSF kernel patch not loaded.")
+        input("(press enter to quit)")
+        sys.exit(0)
     
     return choice_wlan
     

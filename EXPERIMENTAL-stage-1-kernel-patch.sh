@@ -1,12 +1,12 @@
 #!/bin/bash
 
 if [ `id -u` -ne 0 ]; then
-    echo "Please run with: sudo -E ./stage-1-kernel-patch.sh"
+    echo "Please run with: sudo -E ./EXPERIMENTAL-stage-1-kernel-patch.sh"
     exit
 fi
 
 if [ $(cd $HOME/.. && pwd) != "/home" ]; then
-    echo "Please run with: sudo -E ./stage-1-kernel-patch.sh"
+    echo "Please run with: sudo -E ./EXPERIMENTAL-stage-1-kernel-patch.sh"
     exit
 fi
 
@@ -16,6 +16,11 @@ if [ ${PWD##*/} != "pc2drc" ]; then
   read -n 1 -p "(press enter to continue)"
 fi
 
+if [[ $(ip link show | grep -o -m1 "\w*wl\w*") == "" ]]; then
+    echo "No wireless interfaces found. Please attatch a wireless interface and try again."
+    exit
+fi
+
 echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "An internet connection is required for this script to run. Try sudo service network-manager start."
@@ -23,7 +28,21 @@ if [ $? -ne 0 ]; then
     exit
 fi
 
+
+unload_modules_recursively () {
+  local output=$(rmmod $@ 2>&1)
+  if [[ $output =~ "by:" ]]; then
+    unload_modules_recursively $(rmmod $output 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
+  fi
+  if [[ $output =~ "missing module name" ]]; then
+    return 69 #this doesn't matter, I should really check this but whatever
+  fi
+  sleep 1
+}
+
+
 apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison dkms -y
+
 
 #mkdir kernel-patch-files #todo, add gitignore linux-5.11.22.tar.xz and linux-5.11.22
 cd kernel-patch-files 
@@ -63,6 +82,7 @@ if [[ -f "./README.DRC" ]]; then
     echo "Kernel sources already patched, skipping patch."
 else
     if [[ $(echo $kernel_version_first2parts'>5.11' | bc -l) == 1 ]]; then
+        #XXX IMPORTANT REMINDER FOR FUTURE THEFLOPPYDRIVER: -p1 and -p2 strip leading dirnames from the patch, ./mac80211/iface.c -p2 = iface.c   mac80211/iface.c -p1 = iface.c
         patch -p2 < ../../../kernel_above_5_11_mac80211.patch
     else
         patch -p1 < ../../../kernel_below_5_12_mac80211.patch #add sudo if this doesn't work
@@ -76,8 +96,9 @@ sed -i 's/[#]*CONFIG_SYSTEM_TRUSTED_KEYS/#CONFIG_SYSTEM_TRUSTED_KEYS/g' ./linux-
 
 cd linux-${kernel_version}
 
+echo
 echo "This could take a few minutes depending on your system configuration"
-read -n 1 -p "(press enter to build kernel patch)"
+read -n 1 -p "(press enter to build and install kernel patch)"
 
 make olddefconfig -j`nproc` 
 
@@ -114,82 +135,75 @@ cd ../
 
 make modules_prepare -j`nproc`
 
-dkms remove -m drc-mac80211/0.1.0 --all
+dkms remove -m drc-mac80211/0.1.0 -k `uname -r`
 
 dkms install -m drc-mac80211 -v 0.1.0 -j `nproc`
 
-#ASSUME MODULE IS IN /lib/modules/$(uname -r)/updates/dkms/mac80211.ko
-
-restore_modules=$(sudo rmmod mac80211 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
-
-while true
-do
-  extra_modules=$(sudo rmmod mac80211 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
-  output=$(sudo rmmod $extra_modules 2>&1)
-  if [[ $output =~ "by:" ]]; then
-    extra_modules_2=$(sudo rmmod $output 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
-  fi
-  if [[ $output =~ "missing module name" ]]; then
-    break
-  fi
-  sleep 1
-done
-
-sudo cp -f /lib/modules/$(uname -r)/updates/dkms/mac80211.ko /lib/modules/$(uname -r)/mac80211.ko
-
-sudo insmod /lib/modules/$(uname -r)/updates/dkms/mac80211.ko
-sudo modprobe $restore_modules
-sudo modprobe rt2800usb
 
 
-#
-##this *will* take a while. 
-#make -j`nproc` #Issue #1
-#
-#make modules_install -j`nproc`
-#
-#make install -j`nproc`
-#
-#cp /etc/default/grub /etc/default/grub.backupfilebaybee
-#
-#sed -i -e 's/GRUB_DEFAULT\=0/GRUB_DEFAULT\="Advanced\ options\ for\ Ubuntu\>Ubuntu,\ with Linux\ 5.11.22"/' /etc/default/grub
-#
-#update-grub
-#
-#cp /boot/grub/grub.cfg /boot/grub/grub.cfg.backupfilebaybee
-#
-#line_index_1=$(grep -wn -m1 "menuentry 'Ubuntu' --class ubuntu.*" /boot/grub/grub.cfg | cut -d: -f1)
-#line_index_2_rel_index_1=$(tail -n +$line_index_1 /boot/grub/grub.cfg | grep -wn -m1 "}" | cut -d: -f1)
-#line_index_2=$((line_index_1 + line_index_2_rel_index_1))
-#
-#string_to_be_parsed=$(tail -n +$line_index_1 /boot/grub/grub.cfg | head -n +$line_index_2_rel_index_1)
-#
-#replace_line_index_1_rel=$(echo "$string_to_be_parsed" | grep -wn -m1 $'\t'"linux"$'\t'"/boot/\S*" | cut -d: -f1)
-#replace_line_index_2_rel=$(echo "$string_to_be_parsed" | grep -wn -m1 $'\t'"initrd"$'\t'"/boot/.*" | cut -d: -f1)
-#
-#replace_line_index_1=$((replace_line_index_1_rel + line_index_1 - 1))
-#replace_line_index_2=$((replace_line_index_2_rel + line_index_1 - 1))
-#
-#sed -i "${replace_line_index_1}s?"$'\t'"linux"$'\t'"\S*?"$'\t'"linux"$'\t'"/boot/vmlinuz-5\.11\.22?" /boot/grub/grub.cfg
-#sed -i "${replace_line_index_2}s?"$'\t'"initrd"$'\t'"\S*?"$'\t'"initrd"$'\t'"/boot/initrd\.img-5\.11\.22?" /boot/grub/grub.cfg
-#
-#
-#
-#
-#cd ..
-#
 
-cd ..
+
+#ASSUME PATCHED MAC80211 MODULE IS IN /lib/modules/$(uname -r)/updates/dkms/mac80211.ko
+
+restore_modules=$(rmmod mac80211 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)
+
+unload_modules_recursively mac80211
+
+# v Unnecessary?
+#sudo cp -f /lib/modules/$(uname -r)/updates/dkms/mac80211.ko /lib/modules/$(uname -r)/mac80211.ko
+
+insmod /lib/modules/$(uname -r)/updates/dkms/mac80211.ko 2>&1 | grep -v "File exists"
+if [[ $(awk '{ print $1 }' /proc/modules | xargs modinfo -n | grep "mac80211") =~ "dkms/mac80211.ko" ]]; then
+    echo "Patched mac80211 module installed"
+else
+    insmod /lib/modules/$(uname -r)/updates/dkms/mac80211.ko 2>&1 | grep -v "File exists"
+    if [[ $(awk '{ print $1 }' /proc/modules | xargs modinfo -n | grep "mac80211") =~ "dkms/mac80211.ko" ]]; then
+        echo "Patched mac80211 module installed"
+    else        
+        debug_file=./generated_bug_report.txt
+        echo "SCRIPT NAME: ${0}" > $debug_file
+        echo "START OF COMMAND awk '{ print $1 }' /proc/modules | xargs modinfo -n" >> $debug_file
+        awk '{ print $1 }' /proc/modules | xargs modinfo -n >> $debug_file
+        echo -e "\n\n\n\n\nSTART OF COMMAND modinfo iwlmvm | sed -n '/sig_id/q;p'" >> $debug_file
+        modinfo mac80211 | sed -n '/sig_id/q;p' >> $debug_file
+        
+        echo        
+        echo "FATAL ERROR: Could not load patched mac80211 module."
+        echo "thefloppydriver: I have no idea what just caused this to happen. Please send a detailed bug report if you get this message so that I can catch it properly!!"
+        echo "also attatch $(pwd)/generated_bug_report.txt to your bug report :)"
+        echo
+        read -n 1 -p "(press enter to quit)"
+        modprobe $restore_modules
+        exit
+    fi
+fi
+
+echo $restore_modules
+
+#modprobe mac80211
+
+modprobe $restore_modules
+
+#rmmod $restore_modules && rmmod mac80211 && modprobe mac80211 && modprobe $restore_modules
+
+unload_modules_recursively $restore_modules
+unload_modules_recursively mac80211
+modprobe mac80211
+modprobe $restore_modules
+
+
+cd ../..
 
 
 echo 
 echo 
 echo 
 echo 
+
 
 if [[ -f "/sys/class/net/$(ip link show | grep -o -m1 "\w*wl\w*")/tsf" ]]; then
-    rm -rf ../kernel-patch-files/linux-* #sanity check JUST TO MAKE SURE I DON'T DELETE EVERYTHING
-    echo 'Patched mac80211 loaded.'
+    rm -rf ./kernel-patch-files/linux-*
+    echo 'Patched mac80211 loaded'
     echo "Kernel patch installed successfully"
     echo "Make sure to run stage 2 next!"
     read -n 1 -p "(press enter to quit)"
