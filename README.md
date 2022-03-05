@@ -53,22 +53,22 @@
  # TODO: (in order of importance)
    ~~todo: add todo~~
    
+   todo (reminder): dump drc_fw.bin from WiiU filesystem (/sys) and do a string search of "WiiU_" to find out how the Gamepad finds the WiiU in pairing mode
+   
    todo (reminder): compare h264 output of drc-cap to dump.h264 from h264-encoder.cpp (libdrc-thefloppydriver)
-   
-   todo (feature): Add option to build kernel module with dkms instead of compiling entire kernel from source
-   
-   todo (QoL, stability): Install drc-x264 in external_pkg_install_dir (Maybe rename folder)
+      
+   todo (QoL, stability): Install drc-x264 in external_pkg_install_dir instead of on system path (also rename folder accordingly)
    
    todo (bugfix): output WiiU gamepad controls to /dev/uinput when not in mouse mode
    
-   todo (info): Add mouse mode and button bindings to the readme
+   todo (info): Label mouse mode and button bindings in this README and when starting drcvncclient
    
-   todo (QoL, stability): Upgrade wpa_supplicant and hostapd and remodify them for WiiU support (Hard? Probably?)
+   todo (QoL, stability): Upgrade wpa_supplicant and hostapd to current versions and remodify them for WiiU support (Hard? Probably?)
    
    todo (QoL, stability): find better way to resize the tigervnc-server that doesn't involve connecting with xtigervncclient (stuff goes here) -DesktopSize 854x480
    
    todo (feature): remove necessity for WiiU during pairing ~~(seemingly easy)~~ (Note: NOT EASY. NOT EASY. NOT EASY. NOT EASY.)
-   
+      
    todo (QoL, stability): remake wpa_cli.c to only output WiiU related information
    
    todo (feature): Port to openssl 1.1
