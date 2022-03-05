@@ -33,7 +33,7 @@
   
    `sudo -E ./stage-0-init-script.sh`
    
-   `sudo -E ./stage-1-kernel-patch.sh`
+   `sudo -E ./stage-1-kernel-patch.sh` (if this fails run `sudo -E ./kernel-patch-files/build-patched-kernel.sh`)
    
    `sudo -E ./stage-2-build-modules.sh`
    
@@ -52,8 +52,6 @@
    
  # TODO: (in order of importance)
    ~~todo: add todo~~
-   
-   todo (feature, IN-PROGRESS): do mac80211 patch through DKMS using FlorianFranzen's drc-mac80211 repository (Previously known as FloFra. God he was hard to find. To anyone reading this please do not ever rename your account.)
    
    todo (reminder): compare h264 output of drc-cap to dump.h264 from h264-encoder.cpp (libdrc-thefloppydriver)
    
