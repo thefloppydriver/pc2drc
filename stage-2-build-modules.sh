@@ -101,7 +101,7 @@ apt-get install libnl-3-dev libnl-genl-3-dev -y
 
 apt-get install ffmpeg libswscale-dev libavutil-dev -y
 
-apt-get install yasm mesa-utils freeglut3 freeglut3-dev libglew-dev libgl1-mesa-dev libsdl1.2-dev libsdl2-dev tigervnc-standalone-server tigervnc-viewer cmake python3 -y
+apt-get install yasm mesa-utils freeglut3 freeglut3-dev libglew-dev libgl1-mesa-dev libsdl1.2-dev libsdl2-dev tigervnc-standalone-server tigervnc-viewer cmake python3 autoconf -y
 apt-get remove libx264-dev -y
 
 mkdir -m 775 ./external_pkg_build_dir
