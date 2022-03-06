@@ -219,7 +219,7 @@ patch_kernel () {
 
 
 
-installed_module_successfully=0
+installed_module_successfully=false
 
 test_kernel_patch () {
     #(NOTE) ASSUME PATCHED MAC80211 MODULE IS IN /lib/modules/$(uname -r)/updates/dkms/mac80211.ko
@@ -233,12 +233,12 @@ test_kernel_patch () {
     insmod /lib/modules/$(uname -r)/updates/dkms/mac80211.ko 2>&1 | grep -v "File exists"
     if [[ $(awk '{ print $1 }' /proc/modules | xargs modinfo -n | grep "mac80211") =~ "dkms/mac80211.ko" ]]; then
         echo "Patched mac80211 module installed"
-        installed_module_successfully=1
+        installed_module_successfully=true
     else
         modprobe mac80211 #(UNTESTED) Could have unforseen consequences!!
         if [[ $(awk '{ print $1 }' /proc/modules | xargs modinfo -n | grep "mac80211") =~ "dkms/mac80211.ko" ]]; then
             echo "Patched mac80211 module installed"
-            installed_module_successfully=1
+            installed_module_successfully=true
         else        
             echo "SCRIPT NAME: ${0}" > $debug_file
             echo "START OF COMMAND awk '{ print $1 }' /proc/modules | xargs modinfo -n" >> $debug_file
@@ -247,7 +247,7 @@ test_kernel_patch () {
             modinfo mac80211 | sed -n '/sig_id/q;p' >> $debug_file
             chown $USERNAME:$USERNAME $debug_file
             
-            installed_module_successfully=0
+            installed_module_successfully=false
             modprobe $restore_modules
             
             
@@ -268,7 +268,7 @@ test_kernel_patch () {
 
 
 
-if [[ installed_module_successfully == 0 ]]; then
+if [[ $installed_module_successfully == false ]]; then
     rm -rf "${SCRIPT_DIR}/kernel-patch-files/linux-*"
     
     echo; echo; echo; echo
@@ -303,7 +303,7 @@ if [[ installed_module_successfully == 0 ]]; then
     
     cd $SCRIPT_DIR
     
-    if [[ installed_module_successfully == 0 ]]; then
+    if [[ $installed_module_successfully == false ]]; then
         modprobe $restore_modules #(DESC) Give them back their wifi lmfao
         
         echo; echo; echo; echo
@@ -320,7 +320,7 @@ if [[ installed_module_successfully == 0 ]]; then
 fi
 
 
-if [[ installed_module_successfully == 1 ]]; then
+if [[ $installed_module_successfully == true ]]; then
     echo "Woohoo! The module installed successfully!"
 fi
 
