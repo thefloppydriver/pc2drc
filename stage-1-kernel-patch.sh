@@ -148,11 +148,11 @@ patch_kernel () {
             #(NOTE) -p1 and -p2 strip leading dirnames from the patch, ./mac80211/iface.c -p2 = iface.c   mac80211/iface.c -p1 = iface.c
             #(CODE) patch -p2 < ../../../patches/kernel_above_5_11_mac80211.patch
             echo "Using new patch!"
-            patch -p2 -d "./net/mac80211" -i "../../../patches/kernel_above_5_11_mac80211.patch"
+            patch -p2 -d "./net/mac80211" -i "${SCRIPT_DIR}/kernel-patch-files/patches/kernel_above_5_11_mac80211.patch"
         else
             #(CODE) patch -p1 < ../../../patches/mac80211.patch #add sudo if this doesn't work
             echo "Using old patch!"
-            patch -p1 -d "./net/mac80211" -i "../../../patches/kernel_below_5_12_mac80211.patch"
+            patch -p1 -d "./net/mac80211" -i "${SCRIPT_DIR}/kernel-patch-files/patches/kernel_below_5_12_mac80211.patch"
             #(CODE) patch -p2 -d "./linux-${KERNEL_VER}/net/mac80211" -i "../../../patches/mac80211_rx.patch"
         fi
     fi
