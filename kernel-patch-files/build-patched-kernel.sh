@@ -94,29 +94,24 @@ fi
 cp -v /boot/config-$(uname -r) ./linux-${PATCH_KERNEL_VER}/.config
 
 
-#(CODE) cd ./linux-5.11.22/net/mac80211
 
 if [[ -f "./linux-${PATCH_KERNEL_VER}/net/mac80211/README.DRC" ]]; then
     echo "Kernel sources already patched, skipping patch."
 else
     if [[ $(echo "${kernel_version_x}.${kernel_version_y}>5.11" | bc -l) == 1 ]]; then
         #(NOTE) -p1 and -p2 strip leading dirnames from the patch, ./mac80211/iface.c -p2 = iface.c   mac80211/iface.c -p1 = iface.c
-        #(CODE) patch -p2 < ../../../kernel_above_5_11_mac80211.patch
-        patch -p2 -d "./linux-${PATCH_KERNEL_VER}/net/mac80211" -i "../../../kernel_above_5_11_mac80211.patch"
+        #(CODE) patch -p2 < ../../../patches/kernel_above_5_11_mac80211.patch
+        patch -p2 -d "./linux-${PATCH_KERNEL_VER}/net/mac80211" -i "../../../patches/kernel_above_5_11_mac80211.patch"
     else
-        #(CODE) patch -p1 < ../../../mac80211.patch #add sudo if this doesn't work
-        patch -p1 -d "./linux-${PATCH_KERNEL_VER}/net/mac80211" -i "../../../kernel_below_5_12_mac80211.patch"
+        #(CODE) patch -p1 < ../../../patches/mac80211.patch #add sudo if this doesn't work
+        patch -p1 -d "./linux-${PATCH_KERNEL_VER}/net/mac80211" -i "../../../patches/kernel_below_5_12_mac80211.patch"
     fi
 fi
 
 
-#(CODE) cd -
-
-
+#(DESC) Allow us to run an unsigned kernel
 sed -i 's/[#]*CONFIG_SYSTEM_TRUSTED_KEYS/#CONFIG_SYSTEM_TRUSTED_KEYS/g' "./linux-${PATCH_KERNEL_VER}/.config" #(NOTE) the [#]* is there to match any # characters just in case we already ran this script.
 
-
-#(CODE) cd linux-5.11.22
 
 
 echo "This could take over 2 hours depending on your system configuration"
