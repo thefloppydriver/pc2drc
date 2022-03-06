@@ -30,6 +30,8 @@ debug_file="$(pwd)/generated_bug_report.txt"
 distro_name=$(source /etc/os-release && echo $NAME' '$VERSION_ID) #(NOTE) distro_name=Ubuntu 20.04.4 LTS (Focal Fossa)
 
 
+#(UGLY) Everything below this line
+
 init () {
    #(DESC) check if user is root
     if [ `id -u` -ne 0 ]; then
@@ -52,6 +54,7 @@ init () {
    #(DESC) check if there is a wifi interface
     if [[ $(ip link show | grep -o -m1 "\w*wl\w*") == "" ]]; then
         echo "No wireless interfaces found. Please attatch a wireless interface and try again."
+        read -p "(press enter to quit)"
         exit
     fi
     
@@ -96,8 +99,6 @@ kernel_version_z=$(echo $KERNEL_VER | grep -o -m1 "[0-9]*" | head -3 | tail -1) 
 
 cd ./kernel-patch-files
 
-
-
 #(DESC) checks in case script has already been run
 if [[ -f "./linux-${kernel_version_cdn}.tar.xz" ]] || [[ -f "./linux-${KERNEL_VER}.tar.xz" ]]; then
     echo "Kernel already downloaded, skipping download."
@@ -127,7 +128,7 @@ cd ..
 
 
 
-#(NOTE) function requires that you already be in ${SCRIPT_DIR}/kernel-patch-files/linux-${KERNEL_VER}
+#(NOTE) function requires that you already be in the top-level linux kernel source directory (e.g. basename $(pwd) == linux-5.11.22)
 patch_kernel () {
 
     if ! [[ -d "./net/mac80211" ]]; then
@@ -207,7 +208,7 @@ patch_kernel () {
     
     
     #(CLEAN) Remove dkms module in case we've already been here
-    dkms remove -m drc-mac80211/0.1.0 -k `uname -r`
+    dkms remove -m drc-mac80211/0.1.0 -k `uname -r` 2> /dev/null
     
     
     #(DESC) Make and install patched mac80211
@@ -317,6 +318,8 @@ if [[ $installed_module_successfully == false ]]; then
     patch_kernel
     
     cd $SCRIPT_DIR
+    
+    rm -rf ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER
     
     test_kernel_patch
     
