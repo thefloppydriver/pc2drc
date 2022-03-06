@@ -80,9 +80,8 @@ unload_modules_recursively () {
 #(DESC) install required packages
 apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison dkms -y
 
-KERNEL_VER=`uname -r`
-
 #(DESC) Everyone wants the kernel in a different format, create those formats here.
+KERNEL_VER=$(echo `uname -r` | grep -Po -m1 "[0-9]*\.[0-9]*\.[0-9]*" | head -1)
 kernel_version_cdn=$(echo $KERNEL_VER | grep -Po -m1 "[0-9]*\.[0-9]*(\.[1-9]+)*" | head -1) #(DESC) cdn.kernel.org formats the kernel versions like so:  x.y.0 -> x.y   x.y.>0 -> x.y.z
 kernel_version_x=$(echo $KERNEL_VER | grep -o -m1 "[0-9]*" | head -1) #(DESC) x.y.z -> x
 kernel_version_y=$(echo $KERNEL_VER | grep -o -m1 "[0-9]*" | head -2 | tail -1) #(DESC) x.y.z -> y
@@ -110,6 +109,9 @@ if [[ -d "./linux-$KERNEL_VER" ]]; then
 elif [[ -d "./linux-$kernel_version_cdn" ]]; then
     echo "Kernel already decompressed, not renamed. Skipping extraction and renaming."
     test -d ./linux-$kernel_version_cdn && mv ./linux-${kernel_version_cdn} ./linux-${KERNEL_VER}
+elif [[ -d "./linux-$(uname -r)" ]]; then
+    echo "Kernel already decompressed, not renamed. Skipping extraction and renaming."
+    test -d ./linux-$(uname -r) && mv ./linux-$(uname -r) ./linux-${KERNEL_VER}
 else
     echo "Extracting kernel..."
     tar xvf linux-${kernel_version_cdn}.tar.xz 2>&1 >/dev/null
@@ -127,10 +129,13 @@ else
     if [[ $(echo "${kernel_version_x}.${kernel_version_y}>5.11" | bc -l) == 1 ]]; then
         #(NOTE) -p1 and -p2 strip leading dirnames from the patch, ./mac80211/iface.c -p2 = iface.c   mac80211/iface.c -p1 = iface.c
         #(CODE) patch -p2 < ../../../kernel_above_5_11_mac80211.patch
+        echo "Using new patch!"
         patch -p2 -d "./linux-${KERNEL_VER}/net/mac80211" -i "../../../kernel_above_5_11_mac80211.patch"
     else
         #(CODE) patch -p1 < ../../../mac80211.patch #add sudo if this doesn't work
+        echo "Using old patch!"
         patch -p1 -d "./linux-${KERNEL_VER}/net/mac80211" -i "../../../kernel_below_5_12_mac80211.patch"
+        patch -p2 -d "./linux-${KERNEL_VER}/net/mac80211" -i "../../../mac80211_rx.patch"
     fi
 fi
 

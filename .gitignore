@@ -17,3 +17,4 @@ drc-hostap/wpa_supplicant/get_psk.conf
 xrandr-timings.txt
 stage-0-start-script.sh
 kernel-patch-files/kernel_above_5_11_mac80211.patch.backup
+./generated_bug_report.txt
