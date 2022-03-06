@@ -318,6 +318,8 @@ if [[ $installed_module_successfully == false ]]; then
     
     cd $SCRIPT_DIR
     
+    test_kernel_patch
+    
     if [[ $installed_module_successfully == false ]]; then
         modprobe $restore_modules #(DESC) Give them back their wifi lmfao
         
