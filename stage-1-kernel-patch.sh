@@ -275,15 +275,30 @@ if [[ $installed_module_successfully == false ]]; then
     echo "Couldn't install module against running kernel using a clean kernel version ${KERNEL_VER}"
     echo "Looks like your operating system vendor broke compatibility with the version of mac80211 that originally shipped with the kernel :)"
     read -p "(press enter to acknowledge the tomfoolery)"
-    echo
-    echo "Unfortunately there's no standard way to pull kernel sources, so you're going to have to do it yourself."
-    echo "1) Google \"How to get kernel sources for ${distro_name}\" (create a github issue on pc2drc if you need help)"
     
     mkdir "${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER" && chown $USERNAME:$USERNAME "${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER"
     
-    echo "2) Download kernel sources and put them in ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER"
-    echo "3) Extract kernel sources (if they're compressed) and put them in ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER"
-    read -p "4) Once you've done all of the above steps *exactly*, press enter."
+    echo
+    echo "Unfortunately there's no standard way to pull kernel sources, so you're going to have to do it yourself."
+    echo "To get kernel sources on ubuntu, you need to first enable \"Source code\" in the \"Ubuntu Software\" panel in Software & Updates"
+    echo "then open a new terminal and copy & paste the command below: "
+    echo "    cd ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER && apt-get source linux-image-unsigned-$(uname -r)"
+    echo
+    read -p "(press enter after you've tried to do the above)"
+    
+    find_iface_in_sources_results=$(find -H "${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER" -path "*/net/mac80211/iface.c" 2> /dev/null)
+    if [[ $find_iface_in_sources_results == "" ]]; then
+        echo "That didn't seem to work."
+        echo "1) Google \"How to get kernel sources for ${distro_name}\" (create a github issue on pc2drc if you need help)"    
+        echo "2) Download kernel sources and put them in ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER"
+        echo "3) Extract kernel sources (if they're compressed) and put them in ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER"
+        read -p "4) Once you've done all of the above steps *exactly*, press enter."
+    else
+        kernel_sources_dir=$(cd $(dirname $find_iface_in_sources_results)/../.. && pwd)
+        echo "Found kernel sources in ${kernel_sources_dir}"
+    fi
+    
+    
     
     while true; do
         find_iface_in_sources_results=$(find -H "${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER" -path "*/net/mac80211/iface.c" 2> /dev/null)
@@ -309,7 +324,7 @@ if [[ $installed_module_successfully == false ]]; then
         echo; echo; echo; echo
         
         echo "It still didn't work!"
-        echo "FATAL ERROR: Could not load patched mac80211 module despite our best attempts! :'("
+        echo "FATAL ERROR: Could not install patched mac80211 module despite our best attempts! :'("
         echo "thefloppydriver: I have no idea what just caused this to happen. Please send a detailed bug report if you get this message so that I can catch it properly!!"
         echo "also attatch $(pwd)/generated_bug_report.txt to your bug report :)"
         echo
