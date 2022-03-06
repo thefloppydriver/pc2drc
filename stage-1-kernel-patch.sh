@@ -123,11 +123,11 @@ else
     fi
 fi
 
+cd ..
 
 
 
-
-#(NOTE) function requires that you already be in ./kernel-patch-files/linux-${KERNEL_VER}
+#(NOTE) function requires that you already be in ${SCRIPT_DIR}/kernel-patch-files/linux-${KERNEL_VER}
 patch_kernel () {
 
     if ! [[ -d "./net/mac80211" ]]; then
@@ -213,7 +213,7 @@ patch_kernel () {
     #(DESC) Make and install patched mac80211
     dkms install -m drc-mac80211 -v 0.1.0 -j `nproc`
     
-} ; cd ./kernel-patch-files/linux-${KERNEL_VER} ; patch_kernel ; cd ../.. #(DESC) Start function immediately 
+} ; cd ${SCRIPT_DIR}/kernel-patch-files/linux-${KERNEL_VER} ; patch_kernel ; cd ${SCRIPT_DIR} #(DESC) Start function immediately 
 
 
 
