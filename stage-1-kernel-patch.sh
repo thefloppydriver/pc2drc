@@ -353,11 +353,20 @@ fi
 #(CODE) modprobe $restore_modules
 
 
+mac80211_has_no_dependencies=false
 
 unload_modules_recursively $restore_modules
 unload_modules_recursively mac80211
 modprobe mac80211
-modprobe $restore_modules
+modprobe_output=$(modprobe $restore_modules 2>&1) #(DESC) Redirect stderr to stdout and put it in $modprobe_output
+if [[ $modprobe_output == "modprobe: ERROR: missing parameters. See -h." ]]; then
+    echo "No devices were using mac80211. You might not be using a compatible wifi interface"
+    mac80211_has_no_dependencies=true
+else
+    echo "Error during command \`modprobe ${restore_modules}\`"
+    echo "Error: "
+    echo "    ${modprobe_output}"
+fi
 
 
 
@@ -373,7 +382,14 @@ if [[ -f "/sys/class/net/$(ip link show | grep -o -m1 "\w*wl\w*")/tsf" ]]; then
     read -p "(press enter to quit)"
     exit
 else
-    echo 'Kernel patch not working. Try rebooting and running this script again. If that fails, run `sudo -E ./kernel-patch-files/build-patched-kernel.sh` instead.'
+    if [[ $mac80211_has_no_dependencies == true ]] && [[ $installed_module_successfully == true ]]; then
+        echo "The kernel patch isn't working, but the module installed successfully."
+        echo "This probably means that you don't have any devices that use mac80211."
+        echo "You can view the device compatability list at https://github.com/thefloppydriver/pc2drc or by reading the README.md file in the project directory."
+    else
+        echo 'Kernel patch not working. Try rebooting and running this script again. If that fails, run `sudo -E ./kernel-patch-files/build-patched-kernel.sh` instead.'
+    fi
+
     read -p "(press enter to quit)"
     exit
 fi
