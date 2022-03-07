@@ -346,24 +346,32 @@ fi
 
 
 
-#echo $restore_modules
 
-
-#(NOTE) Leave below commented line up to the functions before this.
-#(CODE) modprobe $restore_modules
-
-
-mac80211_has_no_dependencies=false
 
 unload_modules_recursively $restore_modules
 unload_modules_recursively mac80211
 modprobe mac80211
-modprobe_output=$(modprobe $restore_modules 2>&1) #(DESC) Redirect stderr to stdout and put it in $modprobe_output
-if [[ $modprobe_output == "modprobe: ERROR: missing parameters. See -h." ]]; then
+
+
+mac80211_has_no_dependencies=false
+#(NOTE) https://stackoverflow.com/a/59592881/11952326
+#(DESC) Put the stdout of `modprobe $restore_modules` into modprobe_stdout, and the stderr into modprobe_stderr
+{
+    IFS=$'\n' read -r -d '' restore_modules_stderr;
+    IFS=$'\n' read -r -d '' restore_modules_stdout;
+} < <((printf '\0%s\0' "$(modprobe $restore_modules)" 1>&2) 2>&1)
+
+
+if [[ $restore_modules_stderr == "modprobe: ERROR: missing parameters. See -h." ]]; then
     echo "No devices were using mac80211. You might not be using a compatible wifi interface"
     mac80211_has_no_dependencies=true
+elif [[ $restore_modules_stderr == "" ]]; then
+    echo $restore_modules_stdout
 else
     echo "Error during command \`modprobe ${restore_modules}\`"
+    echo "Output: "
+    echo "    ${restore_modules_stdout}"
+    echo
     echo "Error: "
     echo "    ${modprobe_output}"
 fi

@@ -53,6 +53,8 @@
    
    todo (info): Add device compatibility list.
    
+   todo (debug): Add a "logs" folder to project directory.
+   
    todo (QoL): Make all scripts conform to some sort of standard.
    
    todo (reminder): dump drc\_fw.bin from WiiU filesystem (/sys) and do a string search of "WiiU\_" to find out how the Gamepad finds the WiiU in pairing mode
