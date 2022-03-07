@@ -53,6 +53,8 @@
    
    todo (info): Add device compatibility list.
    
+   todo (QoL): Make all scripts conform to some sort of standard.
+   
    todo (reminder): dump drc\_fw.bin from WiiU filesystem (/sys) and do a string search of "WiiU\_" to find out how the Gamepad finds the WiiU in pairing mode
    
    todo (reminder): compare h264 output of drc-cap to dump.h264 from h264-encoder.cpp (libdrc-thefloppydriver)
