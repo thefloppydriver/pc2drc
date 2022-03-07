@@ -13,8 +13,6 @@
   - 802.11n 5GHz rt2800usb-compatable USB WiFi Adapter
      (RT5572-based adapters are known to work, I'm using this and it works great -> https://www.amazon.com/Wireless-Portable-Frequency-Supports-Function/dp/B08LL94TK8)
      NOTE: I am in the process of getting my hands on a newer Mediatek adapter that supports get_tsf() in it's kernel drivers. I will update this after testing it.
-  - ~15 GiB of storage space minimum. (why? Because we'll be recompiling the linux kernel, of course :)  <- *might* change soon.)
-     (Don't worry, the entire project only uses ~20MB after it's installed)
   - A little* bit of patience and a willingness to send me bug reports if something goes wrong!
   
   
