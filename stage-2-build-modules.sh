@@ -26,6 +26,19 @@ unload_modules_recursively () {
   sleep 1
 }
 
+no_check_tsf=false
+
+
+
+if [[ ! "$@" == "" ]]; then
+    if [[ "$@" =~ "--no-check-tsf" ]]; then
+        echo "skipping kernel patch check"
+        no_check_tsf=true
+    fi
+fi
+
+
+if [[ $no_check_tsf == false ]]; then
 
 if [ ! -f "/sys/class/net/$(ip link show | grep -o -m1 "\w*wl\w*")/tsf" ]; then
     echo 'TSF kernel patch not loaded.'
@@ -78,6 +91,10 @@ if [ ! -f "/sys/class/net/$(ip link show | grep -o -m1 "\w*wl\w*")/tsf" ]; then
    echo "Please reboot and try again or email thefloppydriver@gmail.com for help."
    exit
 fi
+
+fi
+
+
 
 if [ ${PWD##*/} != "pc2drc" ]; then
   echo "Parent folder is not named pc2drc. If this script isn't its intended directory you will have an unusable system."
