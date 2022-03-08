@@ -27,10 +27,11 @@ SCRIPT_DIR=$(pwd)
 
 #(DESC) Other constants
 debug_file="$(pwd)/generated_bug_report.txt"
-distro_name=$(source /etc/os-release && echo $NAME' '$VERSION_ID) #(NOTE) distro_name=Ubuntu 20.04.4 LTS (Focal Fossa)
+distro_name_pretty=$(source /etc/os-release && echo $NAME' '$VERSION_ID) #(NOTE) distro_name_pretty=Ubuntu 20.04.4 LTS (Focal Fossa)
+distro_id=$(source /etc/os-release && echo $ID)
+distro_version_codename=$(source /etc/os-release && echo $VERSION_CODENAME)
 
 
-#(UGLY) Everything below this line
 
 init () {
    #(DESC) check if user is root
@@ -128,20 +129,28 @@ cd ..
 
 
 
+
 #(NOTE) function requires that you already be in the top-level linux kernel source directory (e.g. basename $(pwd) == linux-5.11.22)
 patch_kernel () {
-
     if ! [[ -d "./net/mac80211" ]]; then
         echo "/net/mac80211 not found in $(pwd)"
         echo "Please put your kernel folder in $(cd .. && pwd) and try again."
         read -p "(press enter to quit)"
         exit
     fi
+    
+    
+    mac80211_dir=./net/mac80211
       
-
+    
     cp -v /boot/config-$(uname -r) ./.config
     
     
+    #(DESC) Allow us to run unsigned kernel modules
+    sed -i 's/[#]*CONFIG_SYSTEM_TRUSTED_KEYS/#CONFIG_SYSTEM_TRUSTED_KEYS/g' "./.config" #(NOTE) the [#]* is there to match any # characters just in case we already ran this script.
+    
+    
+    #(DESC) Patch mac80211 in kernel sources
     if [[ -f "./net/mac80211/README.DRC" ]]; then
         echo "Kernel sources already patched, skipping patch."
     else
@@ -157,29 +166,22 @@ patch_kernel () {
             #(CODE) patch -p2 -d "./linux-${KERNEL_VER}/net/mac80211" -i "../../../patches/mac80211_rx.patch"
         fi
     fi
+
     
-    
-    #(DESC) Allow us to run an unsigned kernel
-    sed -i 's/[#]*CONFIG_SYSTEM_TRUSTED_KEYS/#CONFIG_SYSTEM_TRUSTED_KEYS/g' "./.config" #(NOTE) the [#]* is there to match any # characters just in case we already ran this script.
-    
-    
-    
-    
-    echo
-    echo "This could take a few minutes depending on your system configuration"
+    echo -e "\nThis could take a few minutes depending on your system configuration"
     read -p "(press enter to build and install kernel patch)"
+    
     
     #(DESC) Configure patched linux kernel sources
     make olddefconfig -j`nproc` 
     
     
-    mac80211_dir=./net/mac80211
-    
-    
+    #(TODO) Check if this is necessary
     chown $USERNAME:$USERNAME $mac80211_dir/Makefile
     
-    #(TODO) Check if this is necessary
+    
     sed -i 's/obj-$(CONFIG_MAC80211) += mac80211.o/obj-$(CONFIG_MAC80211) += mac80211.o\nKVERSION := $(shell uname -r)/g' $mac80211_dir/Makefile
+    
     
     #(DESC) Check if Makefile is already patched
     if grep -xq "all:" $mac80211_dir/Makefile && grep -xq "clean:" $mac80211_dir/Makefile; then
@@ -188,12 +190,14 @@ patch_kernel () {
         echo -e "\nall:\n\t\$(MAKE) -C /lib/modules/\$(KVERSION)/build M=\$(PWD) modules\n\nclean:\n\t\$(MAKE) -C /lib/modules/\$(KVERSION)/build M=\$(PWD) clean" >> $mac80211_dir/Makefile
     fi
     
+    
     #(DESC) Check if dkms.conf is already patched
     if [ -f "${mac80211_dir}/dkms.conf" ]; then
         echo "dkms.conf exists, skipping"
     else
         echo -e 'PACKAGE_NAME="drc-mac80211"\nPACKAGE_VERSION="0.1.0"\nCLEAN="make clean"\nMAKE[0]="make all KVERSION=$kernelver"\nBUILT_MODULE_NAME[0]="mac80211"\nDEST_MODULE_LOCATION[0]="/updates"\nAUTOINSTALL="yes"' > $mac80211_dir/dkms.conf
     fi
+    
     
     #(CLEAN) Just in case we've already run
     test -d "/usr/src/drc-mac80211-0.1.0" && rm -rf /usr/src/drc-mac80211-0.1.0
@@ -250,16 +254,6 @@ test_kernel_patch () {
             
             installed_module_successfully=false
             modprobe $restore_modules
-            
-            
-            #echo        
-            #echo "FATAL ERROR: Could not load patched mac80211 module."
-            #echo "thefloppydriver: I have no idea what just caused this to happen. Please send a detailed bug report if you get this message so that I can catch it properly!!"
-            #echo "also attatch $(pwd)/generated_bug_report.txt to your bug report :)"
-            #echo
-            #read -p "(press enter to quit)"
-            #modprobe $restore_modules
-            #exit
         fi
     fi
 } ; test_kernel_patch #(DESC) Start function immediately 
@@ -270,27 +264,58 @@ test_kernel_patch () {
 
 
 if [[ $installed_module_successfully == false ]]; then
-    rm -rf "${SCRIPT_DIR}/kernel-patch-files/linux-*"
+    #(DESC) Only remove extracted kernel directory, do not remove the downloaded kernel archive.
+    rm -rf $(find . -type d -regex "./linux-[0-9]+\.[0-9]+\.[0-9]+")
     
-    echo; echo; echo; echo
-    echo "Couldn't install module against running kernel using a clean kernel version ${KERNEL_VER}"
-    echo "Looks like your operating system vendor broke compatibility with the version of mac80211 that originally shipped with the kernel :)"
-    read -p "(press enter to acknowledge the tomfoolery)"
+    
+    echo; echo; echo; echo #(NOTE) \n\n\n\n
+    echo "Couldn't install patched module to active kernel using virgin kernel sources version ${KERNEL_VER}"
+    echo "Your operating system vendor probably broke compatibility with the version of mac80211 that comes with the virgin kernel."
+    #(CODE) read -p "(press enter to acknowledge the tomfoolery)"
     
     mkdir "${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER" && chown $USERNAME:$USERNAME "${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER"
     
-    echo
-    echo "Unfortunately there's no standard way to pull kernel sources, so you're going to have to do it yourself."
-    echo "To get kernel sources on ubuntu, you need to first enable \"Source code\" in the \"Ubuntu Software\" panel in Software & Updates"
-    echo "then open a new terminal and copy & paste the command below: "
-    echo "    cd ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER && apt-get source linux-image-unsigned-$(uname -r)"
-    echo
-    read -p "(press enter after you've tried to do the above)"
+    supported_distro_version_codenames="focal" #(TODO) Test on other versions of ubuntu and add them to the list "version1 version2 version3"
     
+    
+    
+    #(UGLY)#(NOTE) Portability? Never heard of it!
+    if [[ $distro_id == "ubuntu" ]]; then #(CODE)#(EXCEPT)#(TODO) && if [[ $supported_distro_version_codenames =~ $distro_version_codename ]]; then
+        apt_sources="/etc/apt/sources.list"
+        country_archive_url=$(cat /etc/apt/sources.list | grep -o -m1 "http://\w*\.archive\.ubuntu\.com/ubuntu/")
+        sign_off=" #Added by pc2drc ${SCRIPT_NAME}"
+        
+        if [[ ! $(cat $apt_sources) =~ $sign_off ]]; then
+            echo "deb-src http://archive.ubuntu.com/ubuntu ${distro_version_codename} main restricted${sign_off}" >> $apt_sources
+            echo "deb-src ${country_archive_url} ${distro_version_codename} universe multiverse main restricted${sign_off}" >> $apt_sources
+            echo "deb-src ${country_archive_url} ${distro_version_codename}-updates universe multiverse main restricted${sign_off}" >> $apt_sources
+            echo "deb-src ${country_archive_url} ${distro_version_codename}-backports universe multiverse main restricted${sign_off}" >> $apt_sources
+            echo "deb-src http://security.ubuntu.com/ubuntu ${distro_version_codename}-security universe multiverse main restricted${sign_off}" >> $apt_sources
+        else
+            echo "Kernel sources already added to \`${apt_sources}\`, skipping"
+        fi
+        apt-get update 
+        cd ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER
+        apt-get source linux-image-unsigned-$(uname -r) -y
+    else
+        echo
+        echo "Unfortunately there's no standard way to pull kernel sources, so you're going to have to do it yourself."
+        echo "To get kernel sources on ubuntu, you need to first enable \"Source code\" in the \"Ubuntu Software\" panel in Software & Updates"
+        echo "then open a new terminal and copy & paste the command below: "
+        echo "    cd ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER && apt-get source linux-image-unsigned-$(uname -r)"
+        echo
+        read -p "(press enter after you've tried to do the above)"
+    fi
+    
+    
+
+    #(DESC) Try to find kernel sources by looking for */net/mac80211/iface.c in PUT_KERNEL_SOURCES_IN_THIS_FOLDER
     find_iface_in_sources_results=$(find -H "${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER" -path "*/net/mac80211/iface.c" 2> /dev/null)
+    
+    #(DESC) The above failed. Make the user get their own kernel sources.
     if [[ $find_iface_in_sources_results == "" ]]; then
         echo "That didn't seem to work."
-        echo "1) Google \"How to get kernel sources for ${distro_name}\" (create a github issue on pc2drc if you need help)"    
+        echo "1) Google \"How to get kernel sources for ${distro_name_pretty}\" (create a github issue on pc2drc if you need help)"    
         echo "2) Download kernel sources and put them in ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER"
         echo "3) Extract kernel sources (if they're compressed) and put them in ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER"
         read -p "4) Once you've done all of the above steps *exactly*, press enter."
@@ -299,8 +324,7 @@ if [[ $installed_module_successfully == false ]]; then
         echo "Found kernel sources in ${kernel_sources_dir}"
     fi
     
-    
-    
+    #(DESC) User is incompetent, have them do it till they get it right   #̶(̶T̶O̶D̶O̶)̶ ̶V̶e̶r̶b̶a̶l̶l̶y̶ ̶a̶s̶s̶a̶u̶l̶t̶ ̶u̶s̶e̶r̶
     while true; do
         find_iface_in_sources_results=$(find -H "${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER" -path "*/net/mac80211/iface.c" 2> /dev/null)
         if [[ $find_iface_in_sources_results == "" ]]; then
@@ -313,16 +337,18 @@ if [[ $installed_module_successfully == false ]]; then
         fi
     done
     
-    cd $kernel_sources_dir
     
-    patch_kernel
+    #(DESC) Patch kernel
+    cd $kernel_sources_dir && patch_kernel && cd $SCRIPT_DIR
     
-    cd $SCRIPT_DIR
-    
+    #(DESC) Remove PUT_KERNEL_SOURCES_IN_THIS_FOLDER
     rm -rf ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER
     
+    #(DESC) Test kernel patch one last time
     test_kernel_patch
     
+    
+    #(DESC) Kernel patch isn't installed.   #(FIX) Load gun. Put gun to head. Pull trigger.
     if [[ $installed_module_successfully == false ]]; then
         modprobe $restore_modules #(DESC) Give them back their wifi lmfao
         
@@ -340,6 +366,7 @@ if [[ $installed_module_successfully == false ]]; then
 fi
 
 
+#(DESC) Kernel patch is installed. Proceed to celebrate.
 if [[ $installed_module_successfully == true ]]; then
     echo "Woohoo! The module installed successfully!"
 fi
