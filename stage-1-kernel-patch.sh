@@ -207,6 +207,7 @@ patch_kernel () {
     cp -rf $mac80211_dir /usr/src/drc-mac80211-0.1.0
     
     
+    #(TODO)#(NOTE) What is this doing here?? Lmao??? Should I move this????? What was I on when I put this here?
     #(DESC) prepare the kernel source tree for building modules
     make modules_prepare -j`nproc`
     
@@ -300,11 +301,13 @@ if [[ $installed_module_successfully == false ]]; then
     else
         echo
         echo "Unfortunately there's no standard way to pull kernel sources, so you're going to have to do it yourself."
-        echo "To get kernel sources on ubuntu, you need to first enable \"Source code\" in the \"Ubuntu Software\" panel in Software & Updates"
+        echo "To get kernel sources on Ubuntu, you need to first enable \"Source code\" in the \"Ubuntu Software\" panel in Software & Updates"
         echo "then open a new terminal and copy & paste the command below: "
         echo "    cd ${SCRIPT_DIR}/PUT_KERNEL_SOURCES_IN_THIS_FOLDER && apt-get source linux-image-unsigned-$(uname -r)"
         echo
         read -p "(press enter after you've tried to do the above)"
+        
+        
     fi
     
     
