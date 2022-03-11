@@ -71,7 +71,8 @@ init () {
 
 
 
-#(DESC) Like rmmod but also unloads mod dependencies. `restore_modules=$(rmmod ${module_to_unload} 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)` should be run before this and `modprobe $resore_modules` after.
+#(DESC) Unloads a module's dependees, then unloads the module. 
+#(NOTE) `restore_modules=$(rmmod ${module_to_unload} 2>&1 >/dev/null | grep -o -m1 "by: .*" | cut -c 5-)` should be run before this and `modprobe $resore_modules` after.
 unload_modules_recursively () {
   local output=$(rmmod $@ 2>&1)
   if [[ $output =~ "by:" ]]; then
