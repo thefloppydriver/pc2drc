@@ -31,7 +31,7 @@
   
    `sudo -E ./stage-0-init-script.sh`
    
-   `sudo -E ./stage-1-kernel-patch.sh` (if this fails run `sudo -E ./kernel-patch-files/build-patched-kernel.sh`)
+   `sudo -E ./stage-1-kernel-patch.sh`
    
    `sudo -E ./stage-2-build-modules.sh`
    
@@ -50,6 +50,8 @@
    
  # TODO: (in order of importance)
    ~~todo: add todo~~
+   
+   todo (feature): Add check if kernel version changed and tell user to run stage-1-kernel-patch.sh again if it has.
    
    todo (info): Add device compatibility list.
    
