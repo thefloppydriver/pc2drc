@@ -12,7 +12,7 @@
   - **CLEAN** install of Ubuntu 20.04 LTS (original project used 18.04 LTS, it should work fine on there and I'll test it soon but lmk)
   - 802.11n 5GHz rt2800usb-compatable USB WiFi Adapter
      (RT5572-based adapters are known to work, I'm using this and it works great -> https://www.amazon.com/Wireless-Portable-Frequency-Supports-Function/dp/B08LL94TK8)
-     NOTE: I am in the process of getting my hands on a newer Mediatek adapter that supports get_tsf() in it's kernel drivers. I will update this after testing it.
+     NOTE: I am in the process of getting my hands on a newer Mediatek adapter that supports get_tsf() in its kernel drivers. I will update this after testing it.
   - A little* bit of patience and a willingness to send me bug reports if something goes wrong!
   
   
