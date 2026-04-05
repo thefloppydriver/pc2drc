@@ -1,3 +1,5 @@
+# As of april 5th of 2026, this project is archived. I don't plan on working on it in the future. Please fork and continue this work.
+
 # pc2drc
  Stream PC->WiiU Gamepad and Give your gamepad a new use! (Linux only)
  
